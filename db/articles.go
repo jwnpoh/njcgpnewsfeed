@@ -4,8 +4,8 @@ package db
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
-    "github.com/google/uuid"
 )
 
 // Article is a struct representing a single entry in the articlesdb.
@@ -34,7 +34,8 @@ func (a  *Article) SetQuestions(year, number int, qnDB *QuestionsDB) error {
 
 // SetDate is a wrapper around time.Parse to parse a date string to time.Time type, in order to call time.Unix() to return an int64 that makes the article sortable by date.
 func (a *Article) SetDate(date string) error {
-    t, err := time.Parse("2 Jan 2006", date)
+    date = strings.ReplaceAll(date, ",", "")
+    t, err := time.Parse("Jan 2 2006", date)
     if err != nil {
         return fmt.Errorf("unable to parse date published - %w", err)
     }
@@ -67,10 +68,10 @@ func InitArticlesDBByDate() (*ArticlesDBByDate, error) {
 
     return &db, nil
 }
-
-// func (a *ArticlesDBByDate) AddArticleToDB(article Article) error {
-//     *a = append(*a, article)
-//     sort.Sort(sort.Reverse(a))
+// 
+// func (db *ArticlesDBByDate) AddArticleToDB(article *Article) error {
+//     *db = append(*db, *article)
+//     sort.Sort(sort.Reverse(db))
 // 
 //     return nil
 // }
@@ -82,4 +83,3 @@ func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
     return nil
 }
 
-type PrimaryDB map[uuid.UUID]Article
