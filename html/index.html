@@ -41,9 +41,9 @@
                   <p><i>{{$j.DisplayDate}}</i></p>
                 </span>
                 <span class="card-title">{{$j.Title}}</span>
-                <p>in 
+                <p>
                   {{range $k := $j.Topics}}
-                     <a href="https://www.google.com"><b>{{$k}}</b></a>,
+                  <a href="https://www.google.com"><div class="chip">{{$k}}</div></a>  
                   {{end}}
                 </p>
                 <br>
