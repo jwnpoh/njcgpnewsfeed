@@ -34,8 +34,8 @@ func (a  *Article) SetQuestions(year, number int, qnDB *QuestionsDB) error {
 
 // SetDate is a wrapper around time.Parse to parse a date string to time.Time type, in order to call time.Unix() to return an int64 that makes the article sortable by date.
 func (a *Article) SetDate(date string) error {
-    date = strings.ReplaceAll(date, ",", "")
-    t, err := time.Parse("Jan 2 2006", date)
+    cleanDate := strings.ReplaceAll(date, ",", "")
+    t, err := time.Parse("Jan 2 2006", cleanDate)
     if err != nil {
         return fmt.Errorf("unable to parse date published - %w", err)
     }
@@ -58,23 +58,17 @@ func NewArticle() (*Article, error) {
 // ArticlesDBByDate is the database of all entries in the articlesdb. Entries are sorted in reverse order of date, with the most recent at index 0.
 type ArticlesDBByDate []Article
 
+
 // Implement sort.Sort interface
 func (a ArticlesDBByDate) Len() int {return len(a)}
 func (a ArticlesDBByDate) Less(i, j int) bool {return a[i].Date < a[j].Date }
 func (a ArticlesDBByDate) Swap(i, j int) {a[i], a[j] = a[j], a[i]}
 
-func InitArticlesDBByDate() (*ArticlesDBByDate, error) {
+func InitArticlesDBByDate() (*ArticlesDBByDate) {
     db := make(ArticlesDBByDate, 0, 50)
 
-    return &db, nil
+    return &db
 }
-// 
-// func (db *ArticlesDBByDate) AddArticleToDB(article *Article) error {
-//     *db = append(*db, *article)
-//     sort.Sort(sort.Reverse(db))
-// 
-//     return nil
-// }
 
 func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
     *db = append(*db, *a)

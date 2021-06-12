@@ -1,48 +1,73 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
+	"context"
 	"log"
-    "context"
+	// "os"
 
-	"github.com/jwnpoh/njcgpnewsfeed/web"
 	"github.com/jwnpoh/njcgpnewsfeed/db"
+	"github.com/jwnpoh/njcgpnewsfeed/web"
 )
 
-func main() {
+var Database *db.ArticlesDBByDate
+var QnDB *db.QuestionsDB
+
+func init() {
     ctx := context.Background()
-
-    database, err := db.InitArticlesDBByDate()
-    if err != nil {
+    Database = db.InitArticlesDBByDate()
+    QnDB= db.NewQnDB()
+    if err := QnDB.MapQuestions(); err != nil {
         log.Fatal(err)
     }
-
-    qnDB := db.NewQnDB()
-    if err = db.MapQuestions(qnDB); err != nil {
+    if err := Database.SetupArticlesDB(ctx, QnDB); err != nil {
         log.Fatal(err)
     }
-
-    if err := db.SetupArticlesDB(ctx, database, qnDB); err != nil {
-        log.Fatal(err)
-    }
-
-    term := "best"
-    results, err := web.Search(term, database)
-    if err != nil {
-        fmt.Println(err)
-    } else {
-        for _, j := range *results {
-            fmt.Printf("%s\n%s\n%s\n%v\n%v\n\n", j.DisplayDate, j.Title, j.URL, j.Topics, j.Questions)
-        }
-    }
-
-    if err := db.BackupToSheets(ctx, database); err != nil {
-        log.Fatal(err)
-    }
-
 }
 
-// func myTest(qnDB *db.QuestionsDB, database *db.ArticlesDBByDate) {
+func main() {
+    s := web.NewServer(Database, QnDB)
+
+    s.Port = "8080"
+    s.TemplateDir = "html"
+
+    log.Fatal(s.Start())
+}
+
+// func main() {
+//     ctx := context.Background()
+// 
+//     Database, err := db.InitArticlesDBByDate()
+//     if err != nil {
+//         log.Fatal(err)
+//     }
+// 
+//     qnDB := db.NewQnDB()
+//     if err := db.MapQuestions(qnDB); err != nil {
+//         log.Fatal(err)
+//     }
+// 
+//     if err := db.SetupArticlesDB(ctx, Database, qnDB); err != nil {
+//         log.Fatal(err)
+//     }
+// 
+//     term := "best"
+//     results, err := web.Search(term, Database)
+//     if err != nil {
+//         fmt.Println(err)
+//     } else {
+//         for _, j := range *results {
+//             fmt.Printf("%s\n%s\n%s\n%v\n%v\n\n", j.DisplayDate, j.Title, j.URL, j.Topics, j.Questions)
+//         }
+//     }
+// 
+//     if err := db.BackupToSheets(ctx, Database); err != nil {
+//         log.Fatal(err)
+//     }
+// 
+// }
+
+// func myTest(qnDB *db.QuestionsDB, Database *db.ArticlesDBByDate) {
 //     a, err := db.NewArticle() 
 //     if err != nil {
 //         log.Fatal(err)
@@ -54,7 +79,7 @@ func main() {
 //     a.SetQuestions(2020, 3, qnDB)
 //     a.SetDate("Jan 27 2020")
 // 
-//     a.AddArticleToDB(database)
+//     a.AddArticleToDB(Database)
 // 
 //     b, err := db.NewArticle() 
 //     if err != nil {
@@ -66,7 +91,7 @@ func main() {
 //     b.SetQuestions(2020, 5, qnDB)
 //     b.SetDate("Mar 25 2021")
 // 
-//     b.AddArticleToDB(database)
+//     b.AddArticleToDB(Database)
 // 
 //     c, err := db.NewArticle() 
 //     if err != nil {
@@ -79,7 +104,7 @@ func main() {
 //     c.SetQuestions(2020, 7, qnDB)
 //     c.SetDate("Feb 26 2018")
 // 
-//     c.AddArticleToDB(database)
+//     c.AddArticleToDB(Database)
 // 
 //     d, err := db.NewArticle() 
 //     if err != nil {
@@ -92,10 +117,10 @@ func main() {
 //     d.SetQuestions(2010, 7, qnDB)
 //     d.SetDate("May 26 2020")
 // 
-//     d.AddArticleToDB(database)
+//     d.AddArticleToDB(Database)
 // 
 //     term := "what"
-//     results, err := web.Search(term, database)
+//     results, err := web.Search(term, Database)
 //     if err != nil {
 //         fmt.Println(err)
 //     } else {

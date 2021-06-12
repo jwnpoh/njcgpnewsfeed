@@ -116,7 +116,7 @@ func getsheetData(srv *sheets.Service) (*sheetData, error) {
     return &sd, nil
 }
 
-func SetupArticlesDB(ctx context.Context, database *ArticlesDBByDate, qnDB *QuestionsDB) error {
+func (database *ArticlesDBByDate) SetupArticlesDB(ctx context.Context, qnDB *QuestionsDB) error {
     srv, err := newSheetsService(ctx)
     if err !=nil {
         return fmt.Errorf("unable to start Sheets service: %w", err)
@@ -160,13 +160,6 @@ func SetupArticlesDB(ctx context.Context, database *ArticlesDBByDate, qnDB *Ques
         }
         a.AddArticleToDB(database)
     }
-    // for _, k := range *database {
-    //     fmt.Println(k.DisplayDate)
-    //     fmt.Println(k.Title)
-    //     fmt.Println(k.URL)
-    //     fmt.Println(k.Questions)
-    //     fmt.Println(k.Topics)
-    // }
     return nil
 }
 

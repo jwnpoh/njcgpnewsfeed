@@ -14,10 +14,6 @@ type Question struct {
     Wording string
 }
 
-func (q *Question) Contains(s, substr string) bool {
-    return strings.Contains(s, substr)
-}
-
 type QuestionsDB struct {
     QnNumberAndQn map[int]string
     ListOfQuestions map[int]map[int]string
@@ -32,7 +28,7 @@ func NewQnDB() *QuestionsDB {
 }
 
 // MapQuestions maps a list of questions in a file named by filename and maps them to a qnDB *PastYearQuestions.
-func MapQuestions(qnDB *QuestionsDB) error {
+func (qnDB *QuestionsDB) MapQuestions() error {
     filename := "db/files/pastyressayqns.txt"
     file, err := os.Open(filename)
     if err != nil {
