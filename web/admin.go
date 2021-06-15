@@ -1,14 +1,13 @@
 package web
 
-import(
+import (
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
-    "net/http"
 
-    "github.com/google/uuid"
-    "github.com/jwnpoh/njcgpnewsfeed/db"
-
+	"github.com/google/uuid"
+	"github.com/jwnpoh/njcgpnewsfeed/db"
 )
 
 func setCookie(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +79,7 @@ func form(w http.ResponseWriter, r *http.Request) {
 }
 
 func addArticle(w http.ResponseWriter, r *http.Request) {
+        r.ParseForm()
         title := r.Form.Get("title")
         url := r.Form.Get("url")
         date := r.Form.Get("date")
@@ -116,28 +116,6 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
         a.AddArticleToDB(s.Articles)
 }
 
-func edit(w http.ResponseWriter, r *http.Request) {
-    if !checkCookie(w, r) {
-        http.Redirect(w, r, "/admin", http.StatusForbidden)
-        return
-    }
-
-    if r.Method == "POST" {
-        editArticle(w, r)
-    }
-
-	err := tpl.ExecuteTemplate(w, "edit.html", nil)
-	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
-	}
-
-}
-
-func editArticle(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func delete(w http.ResponseWriter, r *http.Request) {
     if !checkCookie(w, r) {
         http.Redirect(w, r, "/admin", http.StatusForbidden)
@@ -157,5 +135,18 @@ func delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteArticle(w http.ResponseWriter, r *http.Request) {
+    r.ParseForm()
+    index := r.Form.Get("index")
+
+    s.Articles.RemoveArticle(index)
+}
+
+func backup(w http.ResponseWriter, r *http.Request) {
 
 }
+
+
+func addQuestion(w http.ResponseWriter, r *http.Request) {
+
+}
+

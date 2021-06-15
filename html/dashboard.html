@@ -12,25 +12,39 @@
 
   <body>
     <div class="container">
-      <div class="row"><h3>Welcome! What would you like to do today?</h3></div>
+      <div class="row"><h4 class="center-align">Welcome to the admin dashboard! What would you like to do today?</h4></div>
       <div class="row">
-        <div class="col s4">
-          <h4><a href="/form">Add article(s)</a></h4>
+        <div class="divider"></div>
+      <div class="row"></div>
+        <div class="col s6">
+          <h5 class="center-align"><a href="/form">Add article</a></h5>
+          <p class="center-align">Add an article. Submit multiple forms to add multiple articles.</p>
         </div>
-        <div class="col s4">
-          <h4><a href="/delete">Delete article(s)</a></h4>
+        <div class="col s6">
+          <h5 class="center-align"><a href="/delete">Delete article</a></h5>
+          <p class="center-align">Delete an article. Submit multiple forms to delet multiple articles.</p>
         </div>
-        <div class="col s4">
-          <h4><a href="/edit">Edit article(s)</a></h4>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row"></div>
+      <div class="row">
+        <div class="col s6">
+            <h5 class="center-align"><a href="/update">Add question</a></h5>
+            <p class="center-align">There might be the odd past year question that is missing from the questions database. Add it here.</p>
         </div>
-        
+        <div class="col s6">
+            <h5 class="center-align"><a href="/backup">Backup</a></h5>
+            <p class="center-align">Initiate backup of database to Google Sheets.</p>
+        </div>
       </div>
     </div>
 
    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
   </body>
 
-  {{template "footer"}}
+
 </html>
 
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
-	"strings"
+	// "strings"
 	"time"
 )
 
@@ -42,8 +42,8 @@ func (a  *Article) SetQuestions(year, number string, qnDB QuestionsDB) error {
 
 // SetDate is a wrapper around time.Parse to parse a date string to time.Time type, in order to call time.Unix() to return an int64 that makes the article sortable by date.
 func (a *Article) SetDate(date string) error {
-    cleanDate := strings.ReplaceAll(date, ",", "")
-    t, err := time.Parse("Jan 2 2006", cleanDate)
+    // cleanDate := strings.ReplaceAll(date, ",", "")
+    t, err := time.Parse("Jan 2, 2006", date)
     if err != nil {
         return fmt.Errorf("unable to parse date published - %w", err)
     }
@@ -85,3 +85,8 @@ func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
     return nil
 }
 
+func (db ArticlesDBByDate) RemoveArticle(index string) {
+        j, _ := strconv.Atoi(index)
+        copy(db[j:], db[j+1:] )
+        db[len(db)-1] = Article{}
+}

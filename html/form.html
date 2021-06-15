@@ -13,7 +13,6 @@
   <body>
     <div class="container">
       <div class="row"></div>
-      <div class="row"></div>
       <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
       <div class="row"></div>
       <form action="/form" method="POST">
@@ -52,6 +51,7 @@
         var elems = document.querySelectorAll('.datepicker');
         var instances = M.Datepicker.init(elems, {
           format: 'mmm d, yyyy',
+          setDefaultDate: true,
           defaultDate: today,
         });
       });
@@ -60,7 +60,6 @@
    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
   </body>
 
-  {{template "footer"}}
 </html>
 
 
