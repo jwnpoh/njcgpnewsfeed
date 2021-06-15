@@ -4,6 +4,7 @@ package db
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -26,8 +27,15 @@ func (a *Article) SetTopics(topics ...string) error {
     return nil
 }
 
-func (a  *Article) SetQuestions(year, number int, qnDB *QuestionsDB) error {
-    qn := Question{Year:year, Number:number, Wording:qnDB.ListOfQuestions[year][number]}
+func (a  *Article) SetQuestions(year, number string, qnDB QuestionsDB) error {
+    if _, err := strconv.Atoi(year); err != nil {
+        return fmt.Errorf("the year input is not a number. try again")
+    }
+    if _, err := strconv.Atoi(number); err != nil {
+        return fmt.Errorf("the question number input is not a number. try again")
+    }
+    key := year + " " + number
+    qn := qnDB[key]
     a.Questions = append(a.Questions, qn)
     return nil
 }

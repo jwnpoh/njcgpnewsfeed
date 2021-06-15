@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin - NJC GP News Feed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+
+  {{template "header"}}
+
+  <body>
+    <div class="container">
+      <div class="row"></div>
+      <div class="row"></div>
+      <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
+      <div class="row"></div>
+      <form action="/form" method="POST">
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="title" type="text" name="title" class="validate">
+            <label for="title">Article Title</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s6">
+            <input id="url" type="url" name="url" class="validate">
+            <label for="url">Article URL</label>
+          </div>
+          <div class="input-field col s6">
+            <input id="date" type="text" name="date" class="datepicker">
+            <label for="date">Date published (click to select date)</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="tags" type="text" name="tags" class="validate">
+            <label for="tags">Tag relevant topics and past-year questions(e.g. 2019-Q6). One tag per topic/question, separate each tag with a semicolon.</label>
+          </div>
+        </div>
+        <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn">Submit<i class="material-icons right">send</i></button>
+      </form>
+    </div>
+
+    <script>
+      var today = new Date();
+      document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.datepicker');
+        var instances = M.Datepicker.init(elems, {
+          format: 'mmm d, yyyy',
+          defaultDate: today,
+        });
+      });
+    </script>
+
+   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  </body>
+
+  {{template "footer"}}
+</html>
+
+

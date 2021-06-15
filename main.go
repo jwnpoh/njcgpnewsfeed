@@ -10,23 +10,19 @@ import (
 	"github.com/jwnpoh/njcgpnewsfeed/web"
 )
 
-var Database *db.ArticlesDBByDate
-var QnDB *db.QuestionsDB
-
-func init() {
-    ctx := context.Background()
-    Database = db.InitArticlesDBByDate()
-    QnDB= db.NewQnDB()
-    if err := QnDB.MapQuestions(); err != nil {
-        log.Fatal(err)
-    }
-    if err := Database.SetupArticlesDB(ctx, QnDB); err != nil {
-        log.Fatal(err)
-    }
-}
-
 func main() {
-    s := web.NewServer(Database, QnDB)
+    ctx := context.Background()
+    database := db.InitArticlesDBByDate()
+    qnDB, err := db.InitQuestionsDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    if err := database.SetupArticlesDB(ctx, qnDB); err != nil {
+        log.Fatal(err)
+    }
+
+    s := web.NewServer(database, qnDB)
 
     s.Port = "8080"
     s.TemplateDir = "html"

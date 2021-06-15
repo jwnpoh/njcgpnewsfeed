@@ -25,7 +25,7 @@ type Server struct {
 	AssetDir    string
 	TemplateDir string
     Articles *db.ArticlesDBByDate
-    Questions *db.QuestionsDB
+    Questions db.QuestionsDB
 }
 
 var s Server
@@ -43,7 +43,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
-func NewServer(database *db.ArticlesDBByDate, qnDB *db.QuestionsDB) *Server {
+func NewServer(database *db.ArticlesDBByDate, qnDB db.QuestionsDB) *Server {
     s.Articles = database
     s.Questions = qnDB
 	return &s
@@ -51,11 +51,6 @@ func NewServer(database *db.ArticlesDBByDate, qnDB *db.QuestionsDB) *Server {
 
 func (s *Server) serveStatic() {
 	http.Handle(s.AssetPath, http.StripPrefix(s.AssetPath, http.FileServer(http.Dir(s.AssetDir))))
-}
-
-func (s *Server) router() {
-	http.HandleFunc("/", index)
-	http.HandleFunc("/serveFile", serveFile)
 }
 
 func (s *Server) parseTemplates() {

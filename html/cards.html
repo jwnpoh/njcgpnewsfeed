@@ -1,0 +1,37 @@
+{{define "cards"}}
+
+      <div class="row">
+        {{$data := .}}
+        {{range $article := $data}}
+          <div class="col s12 m6 l4">
+            <div class="card hoverable">
+              <div class="card-content black-text">
+                <span>
+                  <p><i>{{$article.DisplayDate}}</i></p>
+                </span>
+                <span class="card-title">{{$article.Title}}</span>
+                <span>
+                  {{range $topic := $article.Topics}}
+                  <div class="chip"><a href="/search?term={{$topic}}">{{$topic}}</a></div>
+                  {{end}}
+                </span>
+                <br><br>
+                <span>
+                  <a href="{{$article.URL}}" target="_blank" rel="noopener noreferrer" class="btn-small btn-flat waves-effect waves-light red darken-1 white-text"><i class="material-icons left">article</i>Go to article</a>
+                </span>
+              </div>
+              <div class="activator card-action red darken-1 white-text">
+                <span><i class="material-icons left">assignment</i><i class="material-icons right ">more_vert</i>See relevant past year questions</span>
+              </div>
+              <div class="card-reveal">
+                <span class="card-title grey-text text-darken-4">Past year questions<i class="material-icons right">close</i></span>
+              {{range $question := $article.Questions}}
+                <p>{{$question.Wording}} (<a href="/search?term={{$question.Year}} - Q{{$question.Number}}">{{$question.Year}} - Q{{$question.Number}}</a>)</p>
+              {{end}} 
+              </div>
+            </div>
+          </div>
+        {{end}}
+        </div>
+
+{{end}}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin - NJC GP News Feed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+
+  {{template "header"}}
+
+  <body>
+    <div class="container">
+      <div class="row"></div>
+      <div class="row"></div>
+      <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
+      <div class="row"></div>
+      <form action="/form" method="POST">
+        <table class="responsive-table">
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Date published</th>
+              <th>Title</th>
+              <th>URL</th>
+              <th>Tags</th>
+              <th>Questions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          {{range $i, $article := .}} 
+            <tr>
+              <td><label><input type="checkbox" name="$i"></label></td>
+              <td>{{$article.DisplayDate}}</td>
+              <td>{{$article.Title}}</td>
+              <td>{{$article.URL}}</td>
+              <td>{{$article.Topics}}</td>
+              <td>{{$article.Questions}}</td>
+            </tr>
+            {{end}}
+          </tbody>
+          
+        </table>
+
+      </form>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  </body>
+
+  {{template "footer"}}
+</html>
+
+
+

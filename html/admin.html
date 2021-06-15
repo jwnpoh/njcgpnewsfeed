@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>NJC GP News Feed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+
+  {{template "header"}}
+
+  <body>
+    <div class="container">
+      <div class="row"></div>
+      <div class="row"></div>
+      <div class="row"></div>
+      <div class="row"></div>
+      <form action="/admin" method="POST">
+        <div class="row ">
+              <div class="input-field col s5">
+                <i class="material-icons prefix">account_circle</i>
+                <input id="user" type="text" name="user" class="validate">
+                <label for="user">User</label>
+              </div>
+              <div class="input-field col s5">
+                <i class="material-icons prefix">lock</i>
+                <input id="password" type="password" name="password" class="validate">
+                <label for="password">Password</label>
+              </div>
+              <button class="btn-small waves-effect waves-light" type="submit">Login<i class="material-icons right">login</i>
+              </button>
+          </div>
+        </form>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  </body>
+
+  {{template "footer"}}
+</html>
+

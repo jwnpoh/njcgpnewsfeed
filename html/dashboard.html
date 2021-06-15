@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin - NJC GP News Feed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+
+  {{template "header"}}
+
+  <body>
+    <div class="container">
+      <div class="row"><h3>Welcome! What would you like to do today?</h3></div>
+      <div class="row">
+        <div class="col s4">
+          <h4><a href="/form">Add article(s)</a></h4>
+        </div>
+        <div class="col s4">
+          <h4><a href="/delete">Delete article(s)</a></h4>
+        </div>
+        <div class="col s4">
+          <h4><a href="/edit">Edit article(s)</a></h4>
+        </div>
+        
+      </div>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  </body>
+
+  {{template "footer"}}
+</html>
+
+

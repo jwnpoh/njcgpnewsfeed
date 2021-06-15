@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"golang.org/x/oauth2"
@@ -116,7 +115,7 @@ func getsheetData(srv *sheets.Service) (*sheetData, error) {
     return &sd, nil
 }
 
-func (database *ArticlesDBByDate) SetupArticlesDB(ctx context.Context, qnDB *QuestionsDB) error {
+func (database *ArticlesDBByDate) SetupArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
     srv, err := newSheetsService(ctx)
     if err !=nil {
         return fmt.Errorf("unable to start Sheets service: %w", err)
@@ -143,19 +142,19 @@ func (database *ArticlesDBByDate) SetupArticlesDB(ctx context.Context, qnDB *Que
         a.URL = fmt.Sprintf("%v", row[1])
         a.SetDate(fmt.Sprintf("%v", row[4]))
 
-        regex := regexp.MustCompile(`^[0-9]{4}-Q[0-9]+`)
+        regex := regexp.MustCompile(`^\d{4}-Q\d{1,2}$`)
         tags := row[5:]
 
         for _, t := range tags {
-            tString := fmt.Sprintf("%v", t)
-            if regex.MatchString(tString) {
-                tString = strings.ReplaceAll(tString, "-Q", " ")
-                xt := strings.Split(tString, " ")
-                year, _ := strconv.Atoi(xt[0])
-                number, _ := strconv.Atoi(xt[1])
+            tagString := fmt.Sprintf("%v", t)
+            if regex.MatchString(tagString) {
+                tagString = strings.ReplaceAll(tagString, "-Q", " ")
+                xt := strings.Split(tagString, " ")
+                year := xt[0]
+                number := xt[1]
                 a.SetQuestions(year, number, qnDB)
             } else {
-                a.SetTopics(tString)
+                a.SetTopics(tagString)
             }
         }
         a.AddArticleToDB(database)

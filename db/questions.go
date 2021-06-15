@@ -4,54 +4,47 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
 type Question struct {
-    Year int
-    Number int
+    Year string
+    Number string
     Wording string
 }
 
-type QuestionsDB struct {
-    QnNumberAndQn map[int]string
-    ListOfQuestions map[int]map[int]string
-}
-
-func NewQnDB() *QuestionsDB {
-    var qnDB QuestionsDB
-    qnDB.QnNumberAndQn = make(map[int]string)
-    qnDB.ListOfQuestions = make(map[int]map[int]string)
-
-    return &qnDB
-}
+type QuestionsDB map[string]Question
 
 // MapQuestions maps a list of questions in a file named by filename and maps them to a qnDB *PastYearQuestions.
-func (qnDB *QuestionsDB) MapQuestions() error {
+// func (qnDB *QuestionsDB) MapQuestions() error {
+func InitQuestionsDB() (QuestionsDB, error) {
+    qnDB := make(map[string]Question)
+
     filename := "db/files/pastyressayqns.txt"
     file, err := os.Open(filename)
     if err != nil {
-        return fmt.Errorf("unable to open file %s - %w", filename, err)
+        return qnDB, fmt.Errorf("unable to open file %s - %w", filename, err)
     }
     defer file.Close()
 
     scanner := bufio.NewScanner(file)
 
     for scanner.Scan() {
-        mapqn(scanner.Text(), qnDB)
+        s := scanner.Text()
+        xs := strings.SplitN(s, " ", 3)
+
+        year := xs[0]
+        number := xs[1]
+        wording := xs[2]
+
+        qn := Question{year, number, wording}
+
+        key := year + " " + number
+        qnDB[key] = qn
     }
+
     if err := scanner.Err(); err != nil {
-        return fmt.Errorf("problem scanning lines in file and mapping questions")
+        return qnDB, fmt.Errorf("problem scanning lines in file and mapping questions")
     }
-    return nil
-}
-
-func mapqn(s string, qnDB *QuestionsDB) {
-    xs := strings.SplitN(s, " ", 3)
-    i, _ := strconv.Atoi(xs[1])
-    qnDB.QnNumberAndQn[i] = (xs[2])
-
-    j, _ := strconv.Atoi(xs[0])
-    qnDB.ListOfQuestions[j] = qnDB.QnNumberAndQn
+    return qnDB, nil
 }
