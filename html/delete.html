@@ -33,11 +33,13 @@
           {{range $i, $article := .}} 
             <tr>
               <td><label><input type="checkbox" name="$i"></label></td>
+              <span>
               <td>{{$article.DisplayDate}}</td>
               <td>{{$article.Title}}</td>
               <td>{{$article.URL}}</td>
               <td>{{$article.Topics}}</td>
               <td>{{$article.Questions}}</td>
+              </span>
             </tr>
             {{end}}
           </tbody>

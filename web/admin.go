@@ -69,7 +69,7 @@ func form(w http.ResponseWriter, r *http.Request) {
     }
 
     if r.Method == "POST" {
-        parseForm(w, r)
+        addArticle(w, r)
     }
 
 	err := tpl.ExecuteTemplate(w, "form.html", nil)
@@ -79,7 +79,7 @@ func form(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseForm(w http.ResponseWriter, r *http.Request) {
+func addArticle(w http.ResponseWriter, r *http.Request) {
         title := r.Form.Get("title")
         url := r.Form.Get("url")
         date := r.Form.Get("date")
