@@ -115,7 +115,8 @@ func getsheetData(srv *sheets.Service) (*sheetData, error) {
     return &sd, nil
 }
 
-func (database *ArticlesDBByDate) SetupArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
+// InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
+func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
     srv, err := newSheetsService(ctx)
     if err !=nil {
         return fmt.Errorf("unable to start Sheets service: %w", err)
@@ -162,20 +163,17 @@ func (database *ArticlesDBByDate) SetupArticlesDB(ctx context.Context, qnDB Ques
     return nil
 }
 
-func BackupToSheets(ctx context.Context, database *ArticlesDBByDate) error {
+func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
     srv, err := newSheetsService(ctx)
     if err != nil {
         return fmt.Errorf("unable to start Sheets service: %w", err)
     }
 
     backupSheetID := "1nY3sFjXXonSL43C3vPpfnEZO5b4SBXVSfhWdJkUzJS4"
-    backupRange := "Sheet1"
+    backupSheetName := "Articles"
 
     var valueRange sheets.ValueRange
     valueRange.Values = make([][]interface{}, 0, len(*database))
-    // string := []string{"hello", "world!"}
-    // updateValues = append(updateValues, string)
-    // fmt.Printf("%T, %v, %v\n", updateValues, len(updateValues), cap(updateValues))
 
     for _, j := range *database {
         sTopics := strings.Builder{}
@@ -191,11 +189,33 @@ func BackupToSheets(ctx context.Context, database *ArticlesDBByDate) error {
         valueRange.Values = append(valueRange.Values, record)
     }
 
-    for _, k := range valueRange.Values {
-        fmt.Println(k)
+    _, err = srv.Spreadsheets.Values.Update(backupSheetID, backupSheetName, &valueRange).ValueInputOption("RAW").Do()
+    if err != nil {
+        return fmt.Errorf("unable to backup data to backup sheet: %w", err)
+    }
+
+    return nil
+}
+
+func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
+    srv, err := newSheetsService(ctx)
+    if err != nil {
+        return fmt.Errorf("unable to start Sheets service: %w", err)
+    }
+
+    backupSheetID := "1nY3sFjXXonSL43C3vPpfnEZO5b4SBXVSfhWdJkUzJS4"
+    backupSheetName := "Questions"
+
+    var valueRange sheets.ValueRange
+    valueRange.Values = make([][]interface{}, 0, len(qnDB))
+
+    for k, v := range qnDB {
+        record := make([]interface{}, 0, 5)
+        record = append(record, k, v.Year, v.Number, v.Wording)
+        valueRange.Values = append(valueRange.Values, record)
     }
     
-    _, err = srv.Spreadsheets.Values.Update(backupSheetID, backupRange, &valueRange).ValueInputOption("RAW").Do()
+    _, err = srv.Spreadsheets.Values.Update(backupSheetID, backupSheetName, &valueRange).ValueInputOption("RAW").Do()
     if err != nil {
         return fmt.Errorf("unable to backup data to backup sheet: %w", err)
     }

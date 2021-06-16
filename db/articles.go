@@ -19,6 +19,10 @@ type Article struct {
     Date int64
 }
  
+// Define topic-related data structures
+type Topic string
+type TopicsMap map[Topic]Article
+
 // SetTopics is a wrapper around an append function to append multiple topics to the Article struct a.
 func (a *Article) SetTopics(topics ...string) error {
     for _, j := range topics {
@@ -27,6 +31,7 @@ func (a *Article) SetTopics(topics ...string) error {
     return nil
 }
 
+// SetQuestions sets the []Question for the given Article item.
 func (a  *Article) SetQuestions(year, number string, qnDB QuestionsDB) error {
     if _, err := strconv.Atoi(year); err != nil {
         return fmt.Errorf("the year input is not a number. try again")
@@ -66,18 +71,19 @@ func NewArticle() (*Article, error) {
 // ArticlesDBByDate is the database of all entries in the articlesdb. Entries are sorted in reverse order of date, with the most recent at index 0.
 type ArticlesDBByDate []Article
 
-
 // Implement sort.Sort interface
 func (a ArticlesDBByDate) Len() int {return len(a)}
 func (a ArticlesDBByDate) Less(i, j int) bool {return a[i].Date < a[j].Date }
 func (a ArticlesDBByDate) Swap(i, j int) {a[i], a[j] = a[j], a[i]}
 
-func InitArticlesDBByDate() (*ArticlesDBByDate) {
+// NewArticlesDBByDate makes a slice of Articles to initialise the articles database.
+func NewArticlesDBByDate() (*ArticlesDBByDate) {
     db := make(ArticlesDBByDate, 0, 50)
 
     return &db
 }
 
+// AddArticleToDB takes a pointer to an article that has already had all its fields assigned and adds it to the articles database, sorting by most recent published date.
 func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
     *db = append(*db, *a)
     sort.Sort(sort.Reverse(db))
@@ -85,6 +91,7 @@ func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
     return nil
 }
 
+// RemoveArticle is a function that the admin can call from the live app to remove any offending article.
 func (db ArticlesDBByDate) RemoveArticle(index string) {
         j, _ := strconv.Atoi(index)
         copy(db[j:], db[j+1:] )

@@ -14,8 +14,7 @@ func (s *Server) router() {
 	http.HandleFunc("/admin", admin)
 	http.HandleFunc("/form", form)
 	http.HandleFunc("/delete", delete)
-	http.HandleFunc("/backup", backup)
-	http.HandleFunc("/addQuestion", addQuestion)
+	http.HandleFunc("/add", addQuestion)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {

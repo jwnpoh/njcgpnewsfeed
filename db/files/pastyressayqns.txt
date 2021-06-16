@@ -230,7 +230,6 @@
 2019 6 ‘A leader’s responsibility should always be to his or her own country, not other nations.’ Discuss.
 2018 8 Discuss the view that all countries have an equal responsibility to counter terrorism.
 2018 11 ‘Foreign aid does not solve long term problems.’ To what extent is this a fair viewpoint?
-2017 7 Do events, rather than politicians, shape the future?
 2016 6 ‘Countries experiencing conflict should be left to sort out their own problems.’ How far do you agree? 
 2014 6 How far is it important for people to be aware of current events in countries other than their own?
 2014 7 In times of economic hardship, should a country still be expected to provide financial or material aid to others?
@@ -306,3 +305,4 @@
 2007 10 Is it possible to protect the environment when many countries require increasing amounts of energy to progress?
 2004 6 How far is recycling the answer to the problem of waste?
 2008 7 ‘Air travel should be discouraged, not promoted.’ To what extent do you agree?
+2017 6 Do events, rather than politicians, shape the future?

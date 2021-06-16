@@ -14,7 +14,7 @@ func setCookie(w http.ResponseWriter, r *http.Request) {
     http.SetCookie(w, &http.Cookie{
         Name: "sessionID",
         Value: uuid.New().String(), 
-        MaxAge: 300,
+        MaxAge: 600,
         HttpOnly: true,
     })
 }
@@ -25,7 +25,7 @@ func checkCookie(w http.ResponseWriter, r *http.Request) bool {
         return false
     }
 
-    c.MaxAge = 300
+    c.MaxAge = 600
     return true
 }
 
@@ -42,7 +42,9 @@ func admin(w http.ResponseWriter, r *http.Request) {
     if r.Method == "POST" {
         r.ParseForm()
         if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
+                db.BackupArticles(s.Ctx, s.Articles)
                 setCookie(w, r)
+
                 err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
                 if err != nil {
                     http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -106,6 +108,13 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
             if regex.MatchString(t) {
                 year := regexYear.FindString(t)
                 number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
+
+                // check if question exists
+                key := year + " " + number
+                _, ok := s.Questions[key]; if !ok {
+                    http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
+                }
+
                 if err := a.SetQuestions(year, number, s.Questions); err != nil {
                     http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
                 }
@@ -141,12 +150,25 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
     s.Articles.RemoveArticle(index)
 }
 
-func backup(w http.ResponseWriter, r *http.Request) {
-
-}
-
-
 func addQuestion(w http.ResponseWriter, r *http.Request) {
+    if r.Method == "POST" {
+        r.ParseForm()
 
+        year := r.Form.Get("year")
+        number := r.Form.Get("number")
+        wording := r.Form.Get("wording")
+
+        qn := db.Question{Year: year, Number: number, Wording: wording}
+        key := year + " " + number
+        s.Questions[key] = qn
+
+        db.BackupQuestions(s.Ctx, s.Questions)
+    }
+
+	err := tpl.ExecuteTemplate(w, "addQuestion.html", nil)
+	if err != nil {
+        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+        return
+    }
 }
 

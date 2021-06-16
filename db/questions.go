@@ -15,8 +15,7 @@ type Question struct {
 
 type QuestionsDB map[string]Question
 
-// MapQuestions maps a list of questions in a file named by filename and maps them to a qnDB *PastYearQuestions.
-// func (qnDB *QuestionsDB) MapQuestions() error {
+// MapQuestions maps a list of questions in a file named by filename and maps them to a questions database.
 func InitQuestionsDB() (QuestionsDB, error) {
     qnDB := make(map[string]Question)
 

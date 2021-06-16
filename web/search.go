@@ -8,9 +8,9 @@ import (
 	"github.com/jwnpoh/njcgpnewsfeed/db"
 )
 
-// Search
+// Search runs a search of the given term through all the items stored in the database. 
 func Search(term string, database *db.ArticlesDBByDate) *db.ArticlesDBByDate {
-    results := db.InitArticlesDBByDate()
+    results := db.NewArticlesDBByDate()
 
     for _, i := range *database {
         if !searchTitle(term, i) && !searchTopics(term, i) && !searchQuestions(term, i) && !searchDate(term, i) {
