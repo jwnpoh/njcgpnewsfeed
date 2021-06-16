@@ -113,6 +113,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
                 key := year + " " + number
                 _, ok := s.Questions[key]; if !ok {
                     http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
+                    return
                 }
 
                 if err := a.SetQuestions(year, number, s.Questions); err != nil {
