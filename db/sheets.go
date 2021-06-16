@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+    "io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -78,6 +78,7 @@ func newSheetsService(ctx context.Context) (*sheets.Service, error) {
                 return nil, fmt.Errorf("unable to read client secret file: %v", err)
         }
 
+        // b := os.Getenv("CREDENTIALS")
         // If modifying these scopes, delete your previously saved token.json.
         config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets")
         if err != nil {

@@ -2,13 +2,13 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
 
 	"github.com/jwnpoh/njcgpnewsfeed/db"
+	"google.golang.org/api/sheets/v4"
 )
 
 const startMsg = `
@@ -22,18 +22,19 @@ Author: Joel Poh
 var tpl *template.Template
 
 type Server struct {
-	Port        string
-	TemplateDir string
+    Port        string
+    TemplateDir string
     Articles *db.ArticlesDBByDate
     Questions db.QuestionsDB
     Ctx context.Context
+    Srv *sheets.Service
 }
 
 var s Server
 
 // Start takes a Server already initialised with the initial data, parses templates and handlers, and starts ListenAndServe.
 func (s *Server) Start() error {
-	fmt.Printf(startMsg, s.Port)
+	log.Printf(startMsg, s.Port)
 
 	s.parseTemplates()
 	s.router()

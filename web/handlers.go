@@ -15,6 +15,8 @@ func (s *Server) router() {
 	http.HandleFunc("/form", form)
 	http.HandleFunc("/delete", delete)
 	http.HandleFunc("/add", addQuestion)
+	http.HandleFunc("/backup", backup)
+	http.HandleFunc("/favicon.ico", http.NotFound)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {

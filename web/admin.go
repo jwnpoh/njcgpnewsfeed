@@ -42,7 +42,6 @@ func admin(w http.ResponseWriter, r *http.Request) {
     if r.Method == "POST" {
         r.ParseForm()
         if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
-                db.BackupArticles(s.Ctx, s.Articles)
                 setCookie(w, r)
 
                 err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
@@ -163,7 +162,6 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
         key := year + " " + number
         s.Questions[key] = qn
 
-        db.BackupQuestions(s.Ctx, s.Questions)
     }
 
 	err := tpl.ExecuteTemplate(w, "addQuestion.html", nil)
@@ -173,3 +171,7 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func backup(w http.ResponseWriter, r *http.Request) {
+    db.BackupArticles(s.Ctx, s.Articles)
+    db.BackupQuestions(s.Ctx, s.Questions)
+}
