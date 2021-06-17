@@ -11,167 +11,168 @@ import (
 )
 
 func setCookie(w http.ResponseWriter, r *http.Request) {
-    http.SetCookie(w, &http.Cookie{
-        Name: "sessionID",
-        Value: uuid.New().String(), 
-        MaxAge: 600,
-        HttpOnly: true,
-    })
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sessionID",
+		Value:    uuid.New().String(),
+		MaxAge:   600,
+		HttpOnly: true,
+	})
 }
 
 func checkCookie(w http.ResponseWriter, r *http.Request) bool {
-    c, err := r.Cookie("sessionID")
-    if err != nil {
-        return false
-    }
+	c, err := r.Cookie("sessionID")
+	if err != nil {
+		return false
+	}
 
-    c.MaxAge = 600
-    return true
+	c.MaxAge = 600
+	return true
 }
 
 func admin(w http.ResponseWriter, r *http.Request) {
-    if checkCookie(w, r) {
-        err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
-        if err != nil {
-            http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-            return
-        }
-        return
-    }
+	if checkCookie(w, r) {
+		err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		return
+	}
 
-    if r.Method == "POST" {
-        r.ParseForm()
-        if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
-                setCookie(w, r)
+	if r.Method == "POST" {
+		r.ParseForm()
+		if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
+			setCookie(w, r)
 
-                err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
-                if err != nil {
-                    http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-                    return
-                }
-                return
-        } else {
-            http.Redirect(w, r, "/admin", http.StatusUnauthorized)
-        }
-    }
+			err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+				return
+			}
+			return
+		} else {
+			http.Redirect(w, r, "/admin", http.StatusUnauthorized)
+		}
+	}
 
 	err := tpl.ExecuteTemplate(w, "admin.html", nil)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 }
 
 func form(w http.ResponseWriter, r *http.Request) {
-    if !checkCookie(w, r) {
-        http.Redirect(w, r, "/admin", http.StatusForbidden)
-        return
-    }
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusForbidden)
+		return
+	}
 
-    if r.Method == "POST" {
-        addArticle(w, r)
-    }
+	if r.Method == "POST" {
+		addArticle(w, r)
+	}
 
 	err := tpl.ExecuteTemplate(w, "form.html", nil)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 }
 
 func addArticle(w http.ResponseWriter, r *http.Request) {
-        r.ParseForm()
-        title := r.Form.Get("title")
-        url := r.Form.Get("url")
-        date := r.Form.Get("date")
-        tags := r.Form.Get("tags")
-        xtags := strings.Split(tags, ";")
+	r.ParseForm()
+	title := r.Form.Get("title")
+	url := r.Form.Get("url")
+	date := r.Form.Get("date")
+	tags := r.Form.Get("tags")
+	xtags := strings.Split(tags, ";")
 
-        a, err := db.NewArticle()
-        if err != nil {
-            http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-            return
-        }
+	a, err := db.NewArticle()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
 
-        a.Title = title
-        a.URL = url
-        if err := a.SetDate(date); err != nil {
-            http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-        }
-        
-        regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
-        regexYear := regexp.MustCompile(`^\d{4}`)
-        regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
-        for _, t := range xtags {
-            t = strings.TrimSpace(t)
-            if regex.MatchString(t) {
-                year := regexYear.FindString(t)
-                number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
+	a.Title = title
+	a.URL = url
+	if err := a.SetDate(date); err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+	}
 
-                // check if question exists
-                key := year + " " + number
-                _, ok := s.Questions[key]; if !ok {
-                    http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
-                    return
-                }
+	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
+	regexYear := regexp.MustCompile(`^\d{4}`)
+	regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
+	for _, t := range xtags {
+		t = strings.TrimSpace(t)
+		if regex.MatchString(t) {
+			year := regexYear.FindString(t)
+			number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
 
-                if err := a.SetQuestions(year, number, s.Questions); err != nil {
-                    http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-                }
-            } else {
-                a.SetTopics(strings.Title(t))
-            }
-        }
-        a.AddArticleToDB(s.Articles)
+			// check if question exists
+			key := year + " " + number
+			_, ok := s.Questions[key]
+			if !ok {
+				http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
+				return
+			}
+
+			if err := a.SetQuestions(year, number, s.Questions); err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			}
+		} else {
+			a.SetTopics(strings.Title(t))
+		}
+	}
+	a.AddArticleToDB(s.Articles)
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
-    if !checkCookie(w, r) {
-        http.Redirect(w, r, "/admin", http.StatusForbidden)
-        return
-    }
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusForbidden)
+		return
+	}
 
-    if r.Method == "POST" {
-        deleteArticle(w, r)
-    }
+	if r.Method == "POST" {
+		deleteArticle(w, r)
+	}
 
-    data := *s.Articles
+	data := *s.Articles
 	err := tpl.ExecuteTemplate(w, "delete.html", data)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 }
 
 func deleteArticle(w http.ResponseWriter, r *http.Request) {
-    r.ParseForm()
-    index := r.Form.Get("index")
+	r.ParseForm()
+	index := r.Form.Get("index")
 
-    s.Articles.RemoveArticle(index)
+	s.Articles.RemoveArticle(index)
 }
 
 func addQuestion(w http.ResponseWriter, r *http.Request) {
-    if r.Method == "POST" {
-        r.ParseForm()
+	if r.Method == "POST" {
+		r.ParseForm()
 
-        year := r.Form.Get("year")
-        number := r.Form.Get("number")
-        wording := r.Form.Get("wording")
+		year := r.Form.Get("year")
+		number := r.Form.Get("number")
+		wording := r.Form.Get("wording")
 
-        qn := db.Question{Year: year, Number: number, Wording: wording}
-        key := year + " " + number
-        s.Questions[key] = qn
+		qn := db.Question{Year: year, Number: number, Wording: wording}
+		key := year + " " + number
+		s.Questions[key] = qn
 
-    }
+	}
 
 	err := tpl.ExecuteTemplate(w, "addQuestion.html", nil)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
-    }
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
 }
 
 func backup(w http.ResponseWriter, r *http.Request) {
-    db.BackupArticles(s.Ctx, s.Articles)
-    db.BackupQuestions(s.Ctx, s.Questions)
+	db.BackupArticles(s.Ctx, s.Articles)
+	db.BackupQuestions(s.Ctx, s.Questions)
 }

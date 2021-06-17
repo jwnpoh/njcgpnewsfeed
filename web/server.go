@@ -22,12 +22,12 @@ Author: Joel Poh
 var tpl *template.Template
 
 type Server struct {
-    Port        string
-    TemplateDir string
-    Articles *db.ArticlesDBByDate
-    Questions db.QuestionsDB
-    Ctx context.Context
-    Srv *sheets.Service
+	Port        string
+	TemplateDir string
+	Articles    *db.ArticlesDBByDate
+	Questions   db.QuestionsDB
+	Ctx         context.Context
+	Srv         *sheets.Service
 }
 
 var s Server
@@ -38,7 +38,7 @@ func (s *Server) Start() error {
 
 	s.parseTemplates()
 	s.router()
-    err := http.ListenAndServe(":"+s.Port, nil)
+	err := http.ListenAndServe(":"+s.Port, nil)
 	if err != nil {
 		return err
 	}
@@ -47,20 +47,20 @@ func (s *Server) Start() error {
 
 // NewServer initialises the initial data necessary to get going.
 func NewServer() *Server {
-    ctx := context.Background()
-    database := db.NewArticlesDBByDate()
-    qnDB, err := db.InitQuestionsDB()
-    if err != nil {
-        log.Fatal(err)
-    }
+	ctx := context.Background()
+	database := db.NewArticlesDBByDate()
+	qnDB, err := db.InitQuestionsDB()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    if err := database.InitArticlesDB(ctx, qnDB); err != nil {
-        log.Fatal(err)
-    }
+	if err := database.InitArticlesDB(ctx, qnDB); err != nil {
+		log.Fatal(err)
+	}
 
-    s.Articles = database
-    s.Questions = qnDB
-    s.Ctx = ctx
+	s.Articles = database
+	s.Questions = qnDB
+	s.Ctx = ctx
 	return &s
 }
 
@@ -68,4 +68,3 @@ func (s *Server) parseTemplates() {
 	templates := filepath.Join(s.TemplateDir, "*html")
 	tpl = template.Must(template.ParseGlob(templates))
 }
-

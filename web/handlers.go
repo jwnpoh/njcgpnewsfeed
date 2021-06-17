@@ -20,59 +20,58 @@ func (s *Server) router() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-    data := *s.Articles
-    data = data[0:15]
+	data := *s.Articles
+	data = data[0:15]
 
 	err := tpl.ExecuteTemplate(w, "index.html", data)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 }
 
 func latest(w http.ResponseWriter, r *http.Request) {
-    data := *s.Articles
-    data = data[0:15]
+	data := *s.Articles
+	data = data[0:15]
 
 	err := tpl.ExecuteTemplate(w, "latest.html", data)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 }
 
 func all(w http.ResponseWriter, r *http.Request) {
-    data := *s.Articles
+	data := *s.Articles
 
 	err := tpl.ExecuteTemplate(w, "all.html", data)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 }
 
 func search(w http.ResponseWriter, r *http.Request) {
-    q := r.URL.Query()
-    results := Search(q.Get("term"), s.Articles)
+	q := r.URL.Query()
+	results := Search(q.Get("term"), s.Articles)
 
-    if len(q.Get("term")) == 0 || len(*results) == 0 {
-        http.Error(w, "Nothing matched the search term. Try refining your search term.", http.StatusNotFound)
-        return
-    }
+	if len(q.Get("term")) == 0 || len(*results) == 0 {
+		http.Error(w, "Nothing matched the search term. Try refining your search term.", http.StatusNotFound)
+		return
+	}
 
-    data := struct{
-        Term string
-        Articles *db.ArticlesDBByDate
-    }{
-        Term: q.Get("term"),
-        Articles: results ,
-    }
+	data := struct {
+		Term     string
+		Articles *db.ArticlesDBByDate
+	}{
+		Term:     q.Get("term"),
+		Articles: results,
+	}
 
 	err := tpl.ExecuteTemplate(w, "search.html", data)
 	if err != nil {
-        http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-        return
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 
 }
-

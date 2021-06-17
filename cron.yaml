@@ -1,3 +1,4 @@
+cron:
 - description: "weekly backup"
   url: /backup
   schedule: every monday 00:00
