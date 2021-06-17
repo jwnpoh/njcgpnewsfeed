@@ -1,3 +1,4 @@
+// Package db provides functions and types relevant to the backend database for the article feed.
 package db
 
 import (

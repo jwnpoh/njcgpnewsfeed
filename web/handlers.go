@@ -1,3 +1,4 @@
+// Package web contains the server, routing, and handlers logic.
 package web
 
 import (

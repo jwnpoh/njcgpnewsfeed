@@ -1,4 +1,4 @@
-// Package web implements logic to handle interaction between the view and the db
+// Package web contains the server, routing, and handlers logic.
 package web
 
 import (

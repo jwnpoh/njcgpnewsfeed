@@ -1,3 +1,4 @@
+// Package web contains the server, routing, and handlers logic.
 package web
 
 import (
@@ -32,7 +33,7 @@ type Server struct {
 
 var s Server
 
-// Start takes a Server already initialised with the initial data, parses templates and handlers, and starts ListenAndServe.
+// Start takes a Server already initialised with the initial data, parses templates and handlers, and starts ListenAndServe. Start is to be called by main in package main.
 func (s *Server) Start() error {
 	log.Printf(startMsg, s.Port)
 
