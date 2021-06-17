@@ -58,7 +58,7 @@ func (a *Article) SetDate(date string) error {
 	return nil
 }
 
-// NewArticle returns an Article
+// NewArticle returns an Article in order to populate fields for adding to the articles database.
 func NewArticle() (*Article, error) {
 	var a Article
 
@@ -83,7 +83,7 @@ func NewArticlesDBByDate() *ArticlesDBByDate {
 	return &db
 }
 
-// AddArticleToDB takes a pointer to an article that has already had all its fields assigned and adds it to the articles database, sorting by most recent published date.
+// AddArticleToDB takes a pointer to an article that has already had all its fields populated and adds it to the articles database, sorting by most recent published date.
 func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
 	*db = append(*db, *a)
 	sort.Sort(sort.Reverse(db))
@@ -91,7 +91,7 @@ func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
 	return nil
 }
 
-// RemoveArticle is a function that the admin can call from the live app to remove any offending article.
+// RemoveArticle is a function that the admin can invoke from the live app to remove any offending article.
 func (db ArticlesDBByDate) RemoveArticle(index string) {
 	j, _ := strconv.Atoi(index)
 	copy(db[j:], db[j+1:])

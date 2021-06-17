@@ -164,6 +164,7 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 	return nil
 }
 
+// BackupArticles backs up the articles database to a predefined, hard-coded Google Sheet.
 func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 	srv, err := newSheetsService(ctx)
 	if err != nil {
@@ -198,6 +199,7 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 	return nil
 }
 
+// BackupQuestions backs up the questions database to a predefined, hard-coded Google Sheet.
 func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
 	srv, err := newSheetsService(ctx)
 	if err != nil {
