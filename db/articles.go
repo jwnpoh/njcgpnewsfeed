@@ -2,11 +2,15 @@
 package db
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
-	// "strings"
+	"strings"
 	"time"
+
+	"google.golang.org/api/sheets/v4"
 )
 
 // Article is a struct representing a single entry in the articlesdb.
@@ -47,7 +51,6 @@ func (a *Article) SetQuestions(year, number string, qnDB QuestionsDB) error {
 
 // SetDate is a wrapper around time.Parse to parse a date string to time.Time type, in order to call time.Unix() to return an int64 that makes the article sortable by date.
 func (a *Article) SetDate(date string) error {
-	// cleanDate := strings.ReplaceAll(date, ",", "")
 	t, err := time.Parse("Jan 2, 2006", date)
 	if err != nil {
 		return fmt.Errorf("unable to parse date published - %w", err)
@@ -96,4 +99,134 @@ func (db ArticlesDBByDate) RemoveArticle(index string) {
 	j, _ := strconv.Atoi(index)
 	copy(db[j:], db[j+1:])
 	db[len(db)-1] = Article{}
+}
+
+// InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
+func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
+	srv, err := newSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start Sheets service: %w", err)
+	}
+
+    sheetRange := "Articles"
+
+	data, err := getsheetData(srv, sheetRange)
+	if err != nil {
+		return fmt.Errorf("unable to get sheet data: %w", err)
+	}
+
+	if len(data.Values) == 0 {
+		return fmt.Errorf("no data found")
+	}
+
+	for _, row := range data.Values {
+		a, err := NewArticle()
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		a.Title = fmt.Sprintf("%v", row[0])
+		a.URL = fmt.Sprintf("%v", row[1])
+		a.SetDate(fmt.Sprintf("%v", row[4]))
+
+        tags := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
+		for _, t := range tags {
+				a.SetTopics(t)
+		}
+
+        if row[3] == "" {
+            *database = append(*database, *a)
+            continue
+        }
+
+        qnRow := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
+
+        for _, qn := range qnRow {
+            fields := strings.SplitN(qn, " ", 3)
+            year := fields[0]
+            number := fields[1]
+            a.SetQuestions(year, number, qnDB)
+        }
+
+        *database = append(*database, *a)
+	}
+        sort.Sort(sort.Reverse(database))
+	return nil
+}
+
+// BackupArticles backs up the articles database to a predefined, hard-coded Google Sheet.
+func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
+	srv, err := newSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start Sheets service: %w", err)
+	}
+
+	backupSheetID := os.Getenv("SHEET_ID") // Articles DB new
+	backupSheetName := "Articles"
+
+	var valueRange sheets.ValueRange
+	valueRange.Values = make([][]interface{}, 0, len(*database))
+
+	for _, j := range *database {
+		sTopics := strings.Builder{}
+		for _, k := range j.Topics {
+			sTopics.WriteString(string(k) + "\n")
+		}
+		sQuestions := strings.Builder{}
+		for _, l := range j.Questions {
+			sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
+		}
+		record := make([]interface{}, 0, 5)
+		record = append(record, j.Title, j.URL, sTopics.String(), sQuestions.String(), j.DisplayDate)
+		valueRange.Values = append(valueRange.Values, record)
+	}
+
+	_, err = srv.Spreadsheets.Values.Update(backupSheetID, backupSheetName, &valueRange).ValueInputOption("RAW").Do()
+	if err != nil {
+		return fmt.Errorf("unable to backup data to backup sheet: %w", err)
+	}
+
+	return nil
+}
+
+// AppendArticle appends a new article added to the web app database to a predefined, hard-coded Google Sheet.
+func AppendArticle(ctx context.Context, article *Article) error {
+	srv, err := newSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start Sheets service: %w", err)
+	}
+
+	backupSheetID := os.Getenv("SHEET_ID") // Articles DB new
+	backupSheetName := "Articles"
+
+	var valueRange sheets.ValueRange
+	valueRange.Values = make([][]interface{}, 0, 1)
+
+    sTopics := strings.Builder{}
+    for i, k := range article.Topics {
+        if i == len(article.Topics) - 1 {
+            sTopics.WriteString(string(k))
+            break
+        }
+			sTopics.WriteString(string(k) + "\n")
+    }
+
+    sQuestions := strings.Builder{}
+    for i, l := range article.Questions {
+        if i == len(article.Questions) - 1 {
+            sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
+            break
+        }
+        sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
+    }
+
+    record := make([]interface{}, 0, 5)
+    record = append(record, article.Title, article.URL, sTopics.String(), sQuestions.String(), article.DisplayDate)
+    valueRange.Values = append(valueRange.Values, record)
+
+	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
+	if err != nil {
+		return fmt.Errorf("unable to append article to backup sheet: %w", err)
+	}
+
+	return nil
 }

@@ -125,6 +125,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	a.AddArticleToDB(s.Articles)
+    db.AppendArticle(s.Ctx, a)
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
@@ -150,6 +151,7 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 	index := r.Form.Get("index")
 
 	s.Articles.RemoveArticle(index)
+    db.BackupArticles(s.Ctx, s.Articles)
 }
 
 func addQuestion(w http.ResponseWriter, r *http.Request) {
@@ -163,7 +165,7 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 		qn := db.Question{Year: year, Number: number, Wording: wording}
 		key := year + " " + number
 		s.Questions[key] = qn
-
+        db.AppendQuestion(s.Ctx, qn)
 	}
 
 	err := tpl.ExecuteTemplate(w, "addQuestion.html", nil)

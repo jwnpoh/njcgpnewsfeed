@@ -2,10 +2,11 @@
 package db
 
 import (
-	"bufio"
+	"context"
 	"fmt"
 	"os"
-	"strings"
+
+	"google.golang.org/api/sheets/v4"
 )
 
 type Question struct {
@@ -17,34 +18,86 @@ type Question struct {
 type QuestionsDB map[string]Question
 
 // MapQuestions maps a list of questions in a file named by filename and maps them to a questions database.
-func InitQuestionsDB() (QuestionsDB, error) {
+func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 	qnDB := make(map[string]Question)
 
-	filename := "db/files/pastyressayqns.txt"
-	file, err := os.Open(filename)
+	srv, err := newSheetsService(ctx)
 	if err != nil {
-		return qnDB, fmt.Errorf("unable to open file %s - %w", filename, err)
+		return qnDB, fmt.Errorf("unable to start Sheets service: %w", err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+  sheetRange:= "Questions"
+	data, err := getsheetData(srv, sheetRange)
+	if err != nil {
+		return qnDB, fmt.Errorf("unable to get sheet data: %w", err)
+	}
 
-	for scanner.Scan() {
-		s := scanner.Text()
-		xs := strings.SplitN(s, " ", 3)
+	if len(data.Values) == 0 {
+		return qnDB, fmt.Errorf("no data found")
+	}
 
-		year := xs[0]
-		number := xs[1]
-		wording := xs[2]
+
+	for _, row := range data.Values {
+		year := fmt.Sprintf("%v", row[1])
+		number := fmt.Sprintf("%v", row[2])
+		wording := fmt.Sprintf("%v", row[3])
 
 		qn := Question{year, number, wording}
 
 		key := year + " " + number
 		qnDB[key] = qn
 	}
-
-	if err := scanner.Err(); err != nil {
-		return qnDB, fmt.Errorf("problem scanning lines in file and mapping questions")
-	}
 	return qnDB, nil
+}
+
+// BackupQuestions backs up the questions database to a predefined, hard-coded Google Sheet.
+func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
+	srv, err := newSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start Sheets service: %w", err)
+	}
+
+	backupSheetID := os.Getenv("SHEET_ID") // Articles DB new
+	backupSheetName := "Questions"
+
+	var valueRange sheets.ValueRange
+	valueRange.Values = make([][]interface{}, 0, len(qnDB))
+
+	for k, v := range qnDB {
+		record := make([]interface{}, 0, 5)
+		record = append(record, k, v.Year, v.Number, v.Wording)
+		valueRange.Values = append(valueRange.Values, record)
+	}
+
+	_, err = srv.Spreadsheets.Values.Update(backupSheetID, backupSheetName, &valueRange).ValueInputOption("RAW").Do()
+	if err != nil {
+		return fmt.Errorf("unable to backup data to backup sheet: %w", err)
+	}
+
+	return nil
+}
+
+func AppendQuestion(ctx context.Context, qn Question) error {
+	srv, err := newSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start Sheets service: %w", err)
+	}
+
+	backupSheetID := os.Getenv("SHEET_ID") // Articles DB new
+	backupSheetName := "Questions"
+
+	var valueRange sheets.ValueRange
+	valueRange.Values = make([][]interface{}, 0, 1)
+
+    record := make([]interface{}, 0, 5)
+    key := qn.Year + " " + qn.Number
+    record = append(record, key, qn.Year, qn.Number, qn.Wording)
+    valueRange.Values = append(valueRange.Values, record)
+
+	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
+	if err != nil {
+		return fmt.Errorf("unable to append question to backup sheet: %w", err)
+	}
+
+	return nil
 }

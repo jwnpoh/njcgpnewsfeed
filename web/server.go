@@ -50,7 +50,7 @@ func (s *Server) Start() error {
 func NewServer() *Server {
 	ctx := context.Background()
 	database := db.NewArticlesDBByDate()
-	qnDB, err := db.InitQuestionsDB()
+	qnDB, err := db.InitQuestionsDB(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
