@@ -27,7 +27,7 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 	}
 
   sheetRange:= "Questions"
-	data, err := getsheetData(srv, sheetRange)
+	data, err := getSheetData(srv, sheetRange)
 	if err != nil {
 		return qnDB, fmt.Errorf("unable to get sheet data: %w", err)
 	}

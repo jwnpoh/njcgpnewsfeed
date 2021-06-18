@@ -110,7 +110,7 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 
     sheetRange := "Articles"
 
-	data, err := getsheetData(srv, sheetRange)
+	data, err := getSheetData(srv, sheetRange)
 	if err != nil {
 		return fmt.Errorf("unable to get sheet data: %w", err)
 	}
@@ -168,13 +168,23 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 
 	for _, j := range *database {
 		sTopics := strings.Builder{}
-		for _, k := range j.Topics {
-			sTopics.WriteString(string(k) + "\n")
-		}
+		for i, k := range j.Topics {
+            if i == len(j.Topics) - 1 {
+                sTopics.WriteString(string(k))
+                break
+            }
+            sTopics.WriteString(string(k) + "\n")
+        }
+
 		sQuestions := strings.Builder{}
-		for _, l := range j.Questions {
+		for i, l := range j.Questions {
+            if i == len(j.Questions) - 1 {
+                sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
+                break
+            }
 			sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
 		}
+
 		record := make([]interface{}, 0, 5)
 		record = append(record, j.Title, j.URL, sTopics.String(), sQuestions.String(), j.DisplayDate)
 		valueRange.Values = append(valueRange.Values, record)

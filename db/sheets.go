@@ -16,7 +16,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-// Retrieve a token, saves the token, then returns the generated client.
+// Retrieve a token from env then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
     tokenString := os.Getenv("TOKEN")
     r := bytes.NewReader([]byte(tokenString))
@@ -52,7 +52,7 @@ type sheetData struct {
 	Values [][]interface{}
 }
 
-func getsheetData(srv *sheets.Service, sheetRange string) (*sheetData, error) {
+func getSheetData(srv *sheets.Service, sheetRange string) (*sheetData, error) {
 	var sd sheetData
 
 	sd.ID = os.Getenv("SHEET_ID") // Articles DB new
