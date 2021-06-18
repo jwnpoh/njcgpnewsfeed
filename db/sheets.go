@@ -55,10 +55,9 @@ type sheetData struct {
 func getSheetData(srv *sheets.Service, sheetRange string) (*sheetData, error) {
 	var sd sheetData
 
-	sd.ID = os.Getenv("SHEET_ID") // Articles DB new
+	sd.ID = os.Getenv("SHEET_ID")
 	sd.Range = sheetRange
 
-	// resp, err := srv.Spreadsheets.Values.Get(sd.ID, sd.Range).DateTimeRenderOption("FORMATTED_STRING").Do()
 	resp, err := srv.Spreadsheets.Values.Get(sd.ID, sd.Range).Do()
 	if err != nil {
 		return &sd, fmt.Errorf("unable to retrieve data from sheet: %v", err)

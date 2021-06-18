@@ -124,16 +124,16 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 		if err != nil {
 			return fmt.Errorf("%w", err)
 		}
-		a.Title = fmt.Sprintf("%v", row[0])
-		a.URL = fmt.Sprintf("%v", row[1])
-		a.SetDate(fmt.Sprintf("%v", row[4]))
+		a.Title = fmt.Sprintf("%v", row[1])
+		a.URL = fmt.Sprintf("%v", row[2])
+		a.SetDate(fmt.Sprintf("%v", row[0]))
 
-        tags := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
-		for _, t := range tags {
+        topics := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
+		for _, t := range topics {
 				a.SetTopics(t)
 		}
 
-        if row[3] == "" {
+        if row[4] == "" {
             *database = append(*database, *a)
             continue
         }
@@ -141,15 +141,16 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
         qnRow := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
 
         for _, qn := range qnRow {
-            fields := strings.SplitN(qn, " ", 3)
+            fields := strings.Split(qn, " ")
             year := fields[0]
             number := fields[1]
             a.SetQuestions(year, number, qnDB)
         }
-
         *database = append(*database, *a)
 	}
-        sort.Sort(sort.Reverse(database))
+
+    sort.Sort(sort.Reverse(database))
+
 	return nil
 }
 
@@ -160,7 +161,7 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 		return fmt.Errorf("unable to start Sheets service: %w", err)
 	}
 
-	backupSheetID := os.Getenv("SHEET_ID") // Articles DB new
+	backupSheetID := os.Getenv("SHEET_ID")
 	backupSheetName := "Articles"
 
 	var valueRange sheets.ValueRange
@@ -177,16 +178,19 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
         }
 
 		sQuestions := strings.Builder{}
+		sQuestionsKey := strings.Builder{}
 		for i, l := range j.Questions {
             if i == len(j.Questions) - 1 {
                 sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
+                sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
                 break
             }
 			sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
+            sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
 		}
 
 		record := make([]interface{}, 0, 5)
-		record = append(record, j.Title, j.URL, sTopics.String(), sQuestions.String(), j.DisplayDate)
+		record = append(record, j.DisplayDate, j.Title, j.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String())
 		valueRange.Values = append(valueRange.Values, record)
 	}
 
@@ -205,7 +209,7 @@ func AppendArticle(ctx context.Context, article *Article) error {
 		return fmt.Errorf("unable to start Sheets service: %w", err)
 	}
 
-	backupSheetID := os.Getenv("SHEET_ID") // Articles DB new
+	backupSheetID := os.Getenv("SHEET_ID")
 	backupSheetName := "Articles"
 
 	var valueRange sheets.ValueRange
@@ -221,16 +225,19 @@ func AppendArticle(ctx context.Context, article *Article) error {
     }
 
     sQuestions := strings.Builder{}
+    sQuestionsKey := strings.Builder{}
     for i, l := range article.Questions {
         if i == len(article.Questions) - 1 {
             sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
+            sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
             break
         }
         sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
+        sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
     }
 
-    record := make([]interface{}, 0, 5)
-    record = append(record, article.Title, article.URL, sTopics.String(), sQuestions.String(), article.DisplayDate)
+    record := make([]interface{}, 0, 6)
+    record = append(record, article.DisplayDate, article.Title, article.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String())
     valueRange.Values = append(valueRange.Values, record)
 
 	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
