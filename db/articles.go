@@ -124,21 +124,21 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 		if err != nil {
 			return fmt.Errorf("%w", err)
 		}
-		a.Title = fmt.Sprintf("%v", row[1])
-		a.URL = fmt.Sprintf("%v", row[2])
+		a.Title = fmt.Sprintf("%v", row[0])
+		a.URL = fmt.Sprintf("%v", row[1])
 		a.SetDate(fmt.Sprintf("%v", row[0]))
 
-        topics := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
+        topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
 		for _, t := range topics {
 				a.SetTopics(t)
 		}
 
-        if row[4] == "" {
+        if row[3] == "" {
             *database = append(*database, *a)
             continue
         }
 
-        qnRow := strings.Split(fmt.Sprintf("%v", row[4]), "\n")
+        qnRow := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
 
         for _, qn := range qnRow {
             fields := strings.Split(qn, " ")
@@ -190,7 +190,7 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 		}
 
 		record := make([]interface{}, 0, 5)
-		record = append(record, j.DisplayDate, j.Title, j.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String())
+		record = append(record, j.Title, j.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String(), j.DisplayDate)
 		valueRange.Values = append(valueRange.Values, record)
 	}
 
@@ -237,7 +237,7 @@ func AppendArticle(ctx context.Context, article *Article) error {
     }
 
     record := make([]interface{}, 0, 6)
-    record = append(record, article.DisplayDate, article.Title, article.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String())
+    record = append(record, article.Title, article.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String(), article.DisplayDate)
     valueRange.Values = append(valueRange.Values, record)
 
 	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
