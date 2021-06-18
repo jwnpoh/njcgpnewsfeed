@@ -126,7 +126,7 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 		}
 		a.Title = fmt.Sprintf("%v", row[0])
 		a.URL = fmt.Sprintf("%v", row[1])
-		a.SetDate(fmt.Sprintf("%v", row[0]))
+		a.SetDate(fmt.Sprintf("%v", row[5]))
 
         topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
 		for _, t := range topics {
