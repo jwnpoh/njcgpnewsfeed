@@ -138,7 +138,7 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
             continue
         }
 
-        qnRow := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
+        qnRow := strings.Split(fmt.Sprintf("%v", row[4]), "\n")
 
         for _, qn := range qnRow {
             fields := strings.Split(qn, " ")
