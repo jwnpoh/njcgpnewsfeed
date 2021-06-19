@@ -4,6 +4,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -42,7 +43,7 @@ func admin(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		r.ParseForm()
-		if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
+		if r.Form.Get("user") == os.Getenv("ADMIN") && r.Form.Get("password") == os.Getenv("PASSWORD") {
 			setCookie(w, r)
 
 			err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
@@ -125,7 +126,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	a.AddArticleToDB(s.Articles)
-    db.AppendArticle(s.Ctx, a)
+	db.AppendArticle(s.Ctx, a)
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
@@ -151,7 +152,7 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 	index := r.Form.Get("index")
 
 	s.Articles.RemoveArticle(index)
-    db.BackupArticles(s.Ctx, s.Articles)
+	db.BackupArticles(s.Ctx, s.Articles)
 }
 
 func addQuestion(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +166,7 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 		qn := db.Question{Year: year, Number: number, Wording: wording}
 		key := year + " " + number
 		s.Questions[key] = qn
-        db.AppendQuestion(s.Ctx, qn)
+		db.AppendQuestion(s.Ctx, qn)
 	}
 
 	err := tpl.ExecuteTemplate(w, "addQuestion.html", nil)
