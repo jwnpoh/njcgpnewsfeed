@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"html"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -129,6 +129,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	}
 	a.AddArticleToDB(s.Articles)
 	db.AppendArticle(s.Ctx, a)
+	db.AppendArticleToOld(s.Ctx, a)
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
@@ -184,7 +185,7 @@ func backup(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTitle(w http.ResponseWriter, r *http.Request) {
-	b, err := io.ReadAll(r.Body)
+	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -200,7 +201,7 @@ func getTitle(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	// s := bufio.NewScanner(resp.Body)
-	b2, err := io.ReadAll(resp.Body)
+	b2, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Unable to read response from %s\n", url)
 	}

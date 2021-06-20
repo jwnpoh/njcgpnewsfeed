@@ -267,25 +267,22 @@ func AppendArticleToOld(ctx context.Context, article *Article) error {
 	for i, k := range article.Topics {
 		if i == len(article.Topics)-1 {
 			sTopics.WriteString(string(k))
-			tags = append(tags, sTopics.String())
+			tags = append(tags, string(k))
 			break
 		}
 		sTopics.WriteString(string(k) + ", ")
-		tags = append(tags, sTopics.String())
+		tags = append(tags, string(k))
 	}
 
 	sQuestions := strings.Builder{}
-	sQuestionsKey := strings.Builder{}
 	for i, l := range article.Questions {
 		if i == len(article.Questions)-1 {
 			sQuestions.WriteString(fmt.Sprintf("%s (%s - Q%s)", l.Wording, l.Year, l.Number))
-			sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
-			tags = append(tags, sQuestionsKey.String())
+			tags = append(tags, fmt.Sprintf("%s-Q%s", l.Year, l.Number))
 			break
 		}
 		sQuestions.WriteString(fmt.Sprintf("%s (%s - Q%s)<br><br>", l.Wording, l.Year, l.Number))
-		sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
-		tags = append(tags, sQuestionsKey.String())
+		tags = append(tags, fmt.Sprintf("%s-Q%s", l.Year, l.Number))
 	}
 
 	record := make([]interface{}, 0, 13)
