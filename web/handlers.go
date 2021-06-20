@@ -4,7 +4,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/jwnpoh/njcgpnewsfeed/db"
+	"github.com/jwnpoh/njcgpnewsfeed-test/db"
 )
 
 func (s *Server) router() {
@@ -17,6 +17,7 @@ func (s *Server) router() {
 	http.HandleFunc("/delete", delete)
 	http.HandleFunc("/add", addQuestion)
 	http.HandleFunc("/backup", backup)
+	http.HandleFunc("/getTitle", getTitle)
 	http.HandleFunc("/favicon.ico", http.NotFound)
 }
 

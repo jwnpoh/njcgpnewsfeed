@@ -2,14 +2,16 @@
 package web
 
 import (
+	"bytes"
 	"fmt"
+	"html"
+	"io"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/jwnpoh/njcgpnewsfeed/db"
+	"github.com/jwnpoh/njcgpnewsfeed-test/db"
 )
 
 func setCookie(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +45,7 @@ func admin(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		r.ParseForm()
-		if r.Form.Get("user") == os.Getenv("ADMIN") && r.Form.Get("password") == os.Getenv("PASSWORD") {
+		if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
 			setCookie(w, r)
 
 			err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
@@ -179,4 +181,47 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 func backup(w http.ResponseWriter, r *http.Request) {
 	db.BackupArticles(s.Ctx, s.Articles)
 	db.BackupQuestions(s.Ctx, s.Questions)
+}
+
+func getTitle(w http.ResponseWriter, r *http.Request) {
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	url := string(b)
+
+	title := regexp.MustCompile(`\s?<meta[^p]*property=\"og:title\"\s?content=\"[^\"]*\"\s?\/?>`)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Printf("Unable to get response from %s\n", url)
+	}
+	defer resp.Body.Close()
+
+	// s := bufio.NewScanner(resp.Body)
+	b2, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Unable to read response from %s\n", url)
+	}
+
+	t := title.Find(b2)
+
+	regexHead := regexp.MustCompile(`\s?<meta[^p]*property=\"og:title\"\s?content=\"`)
+	regexTail := regexp.MustCompile(`\"\s?\/?>`)
+
+	head := regexHead.Find(t)
+	tail := regexTail.Find(t)
+
+	output := bytes.TrimPrefix(t, head)
+	output = bytes.TrimSuffix(output, tail)
+	output = bytes.TrimSpace(output)
+
+	titleText := html.UnescapeString(string(output))
+	if titleText == "" {
+		fmt.Fprint(w, "Could not find title. Please enter manually.")
+		return
+	}
+
+	fmt.Fprint(w, titleText)
 }

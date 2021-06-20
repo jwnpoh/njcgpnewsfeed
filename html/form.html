@@ -18,13 +18,6 @@
       <form action="/form" method="POST">
 
         <div class="row">
-          <div class="input-field col s12">
-            <input id="title" type="text" name="title" class="validate">
-            <label for="title">Article Title</label>
-          </div>
-        </div>
-
-        <div class="row">
           <div class="input-field col s6">
             <input id="url" type="url" name="url" class="validate">
             <label for="url">Article URL</label>
@@ -32,6 +25,13 @@
           <div class="input-field col s6">
             <input id="date" type="text" name="date" class="datepicker">
             <label for="date">Date published (click to select date)</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s12">
+            <input placeholder="Article title" id="title" type="text" name="title" class="validate">
+            <label for="">Article title</label>
           </div>
         </div>
 
@@ -57,9 +57,25 @@
       });
     </script>
 
+    <script>
+      url = document.getElementById("url");
+      title = document.getElementById("title");
+
+      url.addEventListener('input', function(){
+        console.log(url.value);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/getTitle', true);
+        xhr.addEventListener('readystatechange', function(){
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){
+            var r = xhr.responseText;
+            console.log(r);
+            title.setAttribute("value", r);
+          }
+        });
+        xhr.send(url.value);
+      });
+    </script>
+
    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
   </body>
-
 </html>
-
-
