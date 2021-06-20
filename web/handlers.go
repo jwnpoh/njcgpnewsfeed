@@ -4,7 +4,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/jwnpoh/njcgpnewsfeed-test/db"
+	"github.com/jwnpoh/njcgpnewsfeed/db"
 )
 
 func (s *Server) router() {

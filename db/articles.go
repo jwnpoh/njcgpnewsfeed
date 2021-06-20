@@ -108,7 +108,7 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 		return fmt.Errorf("unable to start Sheets service: %w", err)
 	}
 
-    sheetRange := "Articles"
+	sheetRange := "Articles"
 
 	data, err := getSheetData(srv, sheetRange)
 	if err != nil {
@@ -128,28 +128,28 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 		a.URL = fmt.Sprintf("%v", row[1])
 		a.SetDate(fmt.Sprintf("%v", row[5]))
 
-        topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
+		topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
 		for _, t := range topics {
-				a.SetTopics(t)
+			a.SetTopics(t)
 		}
 
-        if row[3] == "" {
-            *database = append(*database, *a)
-            continue
-        }
+		if row[3] == "" {
+			*database = append(*database, *a)
+			continue
+		}
 
-        qnRow := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
+		qnRow := strings.Split(fmt.Sprintf("%v", row[3]), "\n")
 
-        for _, qn := range qnRow {
-            fields := strings.Split(qn, " ")
-            year := fields[0]
-            number := fields[1]
-            a.SetQuestions(year, number, qnDB)
-        }
-        *database = append(*database, *a)
+		for _, qn := range qnRow {
+			fields := strings.Split(qn, " ")
+			year := fields[0]
+			number := fields[1]
+			a.SetQuestions(year, number, qnDB)
+		}
+		*database = append(*database, *a)
 	}
 
-    sort.Sort(sort.Reverse(database))
+	sort.Sort(sort.Reverse(database))
 
 	return nil
 }
@@ -170,23 +170,23 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 	for _, j := range *database {
 		sTopics := strings.Builder{}
 		for i, k := range j.Topics {
-            if i == len(j.Topics) - 1 {
-                sTopics.WriteString(string(k))
-                break
-            }
-            sTopics.WriteString(string(k) + "\n")
-        }
+			if i == len(j.Topics)-1 {
+				sTopics.WriteString(string(k))
+				break
+			}
+			sTopics.WriteString(string(k) + "\n")
+		}
 
 		sQuestions := strings.Builder{}
 		sQuestionsKey := strings.Builder{}
 		for i, l := range j.Questions {
-            if i == len(j.Questions) - 1 {
-                sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
-                sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
-                break
-            }
+			if i == len(j.Questions)-1 {
+				sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
+				sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
+				break
+			}
 			sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
-            sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
+			sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
 		}
 
 		record := make([]interface{}, 0, 5)
@@ -215,30 +215,83 @@ func AppendArticle(ctx context.Context, article *Article) error {
 	var valueRange sheets.ValueRange
 	valueRange.Values = make([][]interface{}, 0, 1)
 
-    sTopics := strings.Builder{}
-    for i, k := range article.Topics {
-        if i == len(article.Topics) - 1 {
-            sTopics.WriteString(string(k))
-            break
-        }
-			sTopics.WriteString(string(k) + "\n")
-    }
+	sTopics := strings.Builder{}
+	for i, k := range article.Topics {
+		if i == len(article.Topics)-1 {
+			sTopics.WriteString(string(k))
+			break
+		}
+		sTopics.WriteString(string(k) + "\n")
+	}
 
-    sQuestions := strings.Builder{}
-    sQuestionsKey := strings.Builder{}
-    for i, l := range article.Questions {
-        if i == len(article.Questions) - 1 {
-            sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
-            sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
-            break
-        }
-        sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
-        sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
-    }
+	sQuestions := strings.Builder{}
+	sQuestionsKey := strings.Builder{}
+	for i, l := range article.Questions {
+		if i == len(article.Questions)-1 {
+			sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording)
+			sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
+			break
+		}
+		sQuestions.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + " " + l.Wording + "\n")
+		sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
+	}
 
-    record := make([]interface{}, 0, 6)
-    record = append(record, article.Title, article.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String(), article.DisplayDate)
-    valueRange.Values = append(valueRange.Values, record)
+	record := make([]interface{}, 0, 6)
+	record = append(record, article.Title, article.URL, sTopics.String(), sQuestionsKey.String(), sQuestions.String(), article.DisplayDate)
+	valueRange.Values = append(valueRange.Values, record)
+
+	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
+	if err != nil {
+		return fmt.Errorf("unable to append article to backup sheet: %w", err)
+	}
+
+	return nil
+}
+
+// AppendArticleToOld appends a new article added to the web app database to a predefined, hard-coded Google Sheet.
+func AppendArticleToOld(ctx context.Context, article *Article) error {
+	srv, err := newSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start Sheets service: %w", err)
+	}
+
+	backupSheetID := os.Getenv("OLD_SHEET_ID")
+	backupSheetName := "feed"
+
+	var valueRange sheets.ValueRange
+	valueRange.Values = make([][]interface{}, 0, 1)
+
+	tags := make([]interface{}, 0)
+
+	sTopics := strings.Builder{}
+	for i, k := range article.Topics {
+		if i == len(article.Topics)-1 {
+			sTopics.WriteString(string(k))
+			tags = append(tags, sTopics.String())
+			break
+		}
+		sTopics.WriteString(string(k) + ", ")
+		tags = append(tags, sTopics.String())
+	}
+
+	sQuestions := strings.Builder{}
+	sQuestionsKey := strings.Builder{}
+	for i, l := range article.Questions {
+		if i == len(article.Questions)-1 {
+			sQuestions.WriteString(fmt.Sprintf("%s (%s - Q%s)", l.Wording, l.Year, l.Number))
+			sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number))
+			tags = append(tags, sQuestionsKey.String())
+			break
+		}
+		sQuestions.WriteString(fmt.Sprintf("%s (%s - Q%s)<br><br>", l.Wording, l.Year, l.Number))
+		sQuestionsKey.WriteString(fmt.Sprint(l.Year) + " " + fmt.Sprint(l.Number) + "\n")
+		tags = append(tags, sQuestionsKey.String())
+	}
+
+	record := make([]interface{}, 0, 13)
+	record = append(record, article.Title, article.URL, sTopics.String(), sQuestions.String(), article.DisplayDate)
+	record = append(record, tags...)
+	valueRange.Values = append(valueRange.Values, record)
 
 	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
 	if err != nil {

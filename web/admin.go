@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/jwnpoh/njcgpnewsfeed-test/db"
+	"github.com/jwnpoh/njcgpnewsfeed/db"
 )
 
 func setCookie(w http.ResponseWriter, r *http.Request) {
