@@ -1,16 +1,14 @@
-// Package web contains the server, routing, and handlers logic.
-package web
+// Package db provides functions and types relevant to the backend database for the article feed.
+package db
 
 import (
 	"regexp"
 	"strings"
-
-	"github.com/jwnpoh/njcgpnewsfeed/db"
 )
 
 // Search runs a search of the given term through all the items stored in the database.
-func Search(term string, database *db.ArticlesDBByDate) *db.ArticlesDBByDate {
-	results := db.NewArticlesDBByDate()
+func Search(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
+	results := NewArticlesDBByDate()
 
 	for _, i := range *database {
 		if !searchTitle(term, i) && !searchTopics(term, i) && !searchQuestions(term, i) && !searchDate(term, i) {
@@ -23,11 +21,11 @@ func Search(term string, database *db.ArticlesDBByDate) *db.ArticlesDBByDate {
 	return results
 }
 
-func searchTitle(term string, a db.Article) bool {
+func searchTitle(term string, a Article) bool {
 	return strings.Contains(strings.ToLower(a.Title), strings.ToLower(term))
 }
 
-func searchTopics(term string, a db.Article) bool {
+func searchTopics(term string, a Article) bool {
 	for _, j := range a.Topics {
 		if strings.Contains(strings.ToLower(string(j)), strings.ToLower(term)) {
 			return true
@@ -36,7 +34,7 @@ func searchTopics(term string, a db.Article) bool {
 	return false
 }
 
-func searchQuestions(term string, a db.Article) bool {
+func searchQuestions(term string, a Article) bool {
 	searchYr := regexp.MustCompile(`^\d{4}$`)
 	searchYrAndQn := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
 	searchQnNo := regexp.MustCompile(`^(q|Q)\d{1,2}$`)
@@ -76,6 +74,6 @@ func searchQuestions(term string, a db.Article) bool {
 	return false
 }
 
-func searchDate(term string, a db.Article) bool {
+func searchDate(term string, a Article) bool {
 	return strings.Contains(strings.ToLower(a.DisplayDate), strings.ToLower(term))
 }
