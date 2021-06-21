@@ -55,7 +55,7 @@ func all(w http.ResponseWriter, r *http.Request) {
 
 func search(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-	results := Search(q.Get("term"), s.Articles)
+	results := db.Search(q.Get("term"), s.Articles)
 
 	if len(q.Get("term")) == 0 || len(*results) == 0 {
 		http.Error(w, "Nothing matched the search term. Try refining your search term.", http.StatusNotFound)

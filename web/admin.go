@@ -7,6 +7,7 @@ import (
 	"html"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -45,7 +46,7 @@ func admin(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		r.ParseForm()
-		if r.Form.Get("user") == "admin" && r.Form.Get("password") == "288913" {
+		if r.Form.Get("user") == os.Getenv("ADMIN") && r.Form.Get("password") == os.Getenv("PASSWORD") {
 			setCookie(w, r)
 
 			err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
@@ -200,7 +201,6 @@ func getTitle(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	// s := bufio.NewScanner(resp.Body)
 	b2, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Unable to read response from %s\n", url)
