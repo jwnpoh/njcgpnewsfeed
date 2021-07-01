@@ -290,7 +290,7 @@ func AppendArticleToOld(ctx context.Context, article *Article) error {
 	record = append(record, tags...)
 	valueRange.Values = append(valueRange.Values, record)
 
-	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
+	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("USER_ENTERED").Do()
 	if err != nil {
 		return fmt.Errorf("unable to append article to backup sheet: %w", err)
 	}
