@@ -2,37 +2,40 @@
 
       <div class="row">
         {{range $article := .}}
-          <div class="col s12 l6 xl4">
-            <div class="card small hoverable">
+          <div class="col s12 l6">
+            <div class="card medium hoverable" style="height: 350px;">
               <div class="card-content black-text">
                 <span>
-                  <p><i>Published on {{$article.DisplayDate}}</i></p>
+                  <p style="font-size: medium;"><i>Published on {{$article.DisplayDate}}</i></p>
                 </span>
-                <span class="card-title">{{$article.Title}}</span>
-                <span>
-                <p style="font-size: medium;">
-                  {{range $topic := $article.Topics}}
-                  <a href="/search?term={{$topic}}" style="margin-right: 2px;"><em>#{{$topic}}</em></a>
-                  {{end}}
-                  </p>
+                <span class="card-content">
+                  <div class="valign-wrapper">
+                    <span class="card-title">{{$article.Title}}</span>
+                  </div>
+                    <span>
+                      <p style="font-size: medium;">
+                        {{range $topic := $article.Topics}}
+                        <a href="/search?term={{$topic}}" style="margin-right: 2px;"><em>#{{$topic}}</em></a>
+                        {{end}}
+                        </p>
+                    </span>
                 </span>
                 <br>
-                <span>
+              <span>
                   <a href="{{$article.URL}}" target="_blank" rel="noopener noreferrer" class="btn-small btn-flat waves-effect waves-light red darken-1 white-text"><i class="material-icons left">article</i>Go to article</a>
-                </span>
+              </span>
               </div>
-              <div class="activator card-action red darken-1 white-text">
-                <span><i class="material-icons left">assignment</i><i class="material-icons right ">more_vert</i>See relevant past year questions</span>
+              <div class="card-action red darken-1 white-text">
+                <span class="activator" style="cursor: pointer;"><i class="material-icons left">assignment</i><i class="material-icons right ">more_vert</i>See relevant past year questions</span>
               </div>
               <div class="card-reveal">
                 <span class="card-title grey-text text-darken-4">Past year questions<i class="material-icons right">close</i></span>
-              {{range $question := $article.Questions}}
-                <p>{{$question.Wording}} (<a href="/search?term={{$question.Year}} - Q{{$question.Number}}">{{$question.Year}} - Q{{$question.Number}}</a>)</p>
-              {{end}} 
+                {{range $question := $article.Questions}}
+                  <p>{{$question.Wording}} (<a href="/search?term={{$question.Year}} - Q{{$question.Number}}">{{$question.Year}} - Q{{$question.Number}}</a>)</p>
+                {{end}} 
               </div>
             </div>
           </div>
         {{end}}
         </div>
-
 {{end}}
