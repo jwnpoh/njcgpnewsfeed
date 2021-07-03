@@ -109,6 +109,9 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	regexYear := regexp.MustCompile(`^\d{4}`)
 	regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
 	for _, t := range xtags {
+		if t == "" {
+			continue
+		}
 		t = strings.TrimSpace(t)
 		if regex.MatchString(t) {
 			year := regexYear.FindString(t)
