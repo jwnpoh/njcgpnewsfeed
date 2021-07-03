@@ -3,22 +3,49 @@
 <header>
  <nav>
     <div class="nav-wrapper red darken-1 white-text">
-      <a href="/" style="padding-left:20px;font-size:1.5em;"><strong>NJC GP News Feed</strong>
-      <ul id="nav-mobile" class="right">
-        <li><a href="/latest">Latest articles</a></li>
-        <li><a href="/all">All articles</a></li>
-        <li><a href="https://sites.google.com/njcgclassroom.com/njcgp?pli=1&authuser=1" target="_blank" rel="noopener noreferrer">More GP resources</a></li>
-        <li>
-          <form action="/search" method="GET">
-            <div class="input-field white-text">
-              <input type="text" name="term" id="search">
-              <i class="material-icons suffix">search</i>
-            </div>
-          </form>
-        </li>
-      </ul>
+      <div class="row">
+        <div class="col s1">
+          <a href="#" data-target="slide-out" class="top-nav sidenav-trigger show-on-large"><i class="material-icons">menu</i></a>
+        </div>
+        <div class="col s11">
+            <h5 class="header brand-logo center" style="font-size:x-large;margin-top: 1.5rem;"><a href="/">NJC GP News Feed</a></h5>
+        </div>
+      </div>
     </div>
   </nav>
+
+<!-- sidenav -->
+  <ul id="slide-out" class="sidenav">
+    <li class="logo">
+      <p class="center-align"><a href="/admin"><img src="http://nationaljc-moe-edu-sg-admin.cwp.sg/wp-content/uploads/2021/03/njcat.png" height="68px" style="vertical-align:bottom;"></a></p>
+    </li>
+    <li><div class="divider"></div></li>
+    <li class="search">
+      <div class="search-wrapper" >
+        <form action="/search" method="GET">
+          <div class="input-field" >
+                <input style="padding: 0 32px;" placeholder="Search" type="text" name="term" id="search">
+                <i class="material-icons suffix">search</i>
+          </div>
+        </form>
+      </div>
+    </li>
+    <li><a href="/latest">Latest articles</a></li>
+    <li><a href="/all">All articles</a></li>
+    <li><a href="https://sites.google.com/njcgclassroom.com/njcgp?pli=1&authuser=1" target="_blank" rel="noopener noreferrer">More GP resources</a></li>
+    <li><div class="divider"></div></li>
+    <li class="logo"><div>
+      <p class="center-align">Copyright 2021 National Junior College.</p>
+    </div></li>
+  </ul>
+
 </header>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, {
+    });
+  });
+  </script>
 {{end}}
