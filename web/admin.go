@@ -75,6 +75,7 @@ func form(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		addArticle(w, r)
+		checkCookie(w, r)
 	}
 
 	err := tpl.ExecuteTemplate(w, "form.html", nil)
@@ -141,6 +142,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		deleteArticle(w, r)
+		checkCookie(w, r)
 	}
 
 	data := *s.Articles

@@ -23,7 +23,7 @@ func (s *Server) router() {
 
 func index(w http.ResponseWriter, r *http.Request) {
 	data := *s.Articles
-	data = data[0:15]
+	data = data[0:12]
 
 	err := tpl.ExecuteTemplate(w, "index.html", data)
 	if err != nil {
