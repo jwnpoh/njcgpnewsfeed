@@ -31,6 +31,7 @@ func checkCookie(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	c.MaxAge = 600
+	http.SetCookie(w, c)
 	return true
 }
 
@@ -69,13 +70,12 @@ func admin(w http.ResponseWriter, r *http.Request) {
 
 func form(w http.ResponseWriter, r *http.Request) {
 	if !checkCookie(w, r) {
-		http.Redirect(w, r, "/admin", http.StatusForbidden)
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
 		return
 	}
 
 	if r.Method == "POST" {
 		addArticle(w, r)
-		checkCookie(w, r)
 	}
 
 	err := tpl.ExecuteTemplate(w, "form.html", nil)
@@ -86,6 +86,11 @@ func form(w http.ResponseWriter, r *http.Request) {
 }
 
 func addArticle(w http.ResponseWriter, r *http.Request) {
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
+		return
+	}
+
 	r.ParseForm()
 	title := r.Form.Get("title")
 	url := r.Form.Get("url")
@@ -139,13 +144,12 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 
 func delete(w http.ResponseWriter, r *http.Request) {
 	if !checkCookie(w, r) {
-		http.Redirect(w, r, "/admin", http.StatusForbidden)
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
 		return
 	}
 
 	if r.Method == "POST" {
 		deleteArticle(w, r)
-		checkCookie(w, r)
 	}
 
 	data := *s.Articles
@@ -157,15 +161,33 @@ func delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteArticle(w http.ResponseWriter, r *http.Request) {
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
+		return
+	}
+
 	r.ParseForm()
 	index := r.Form.Get("index")
+	if index == "0" {
+		return
+	}
 
 	s.Articles.RemoveArticle(index)
 	go db.BackupArticles(s.Ctx, s.Articles)
 }
 
 func addQuestion(w http.ResponseWriter, r *http.Request) {
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
+		return
+	}
+
 	if r.Method == "POST" {
+		if !checkCookie(w, r) {
+			http.Redirect(w, r, "/admin", http.StatusUnauthorized)
+			return
+		}
+
 		r.ParseForm()
 
 		year := r.Form.Get("year")
