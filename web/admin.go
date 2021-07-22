@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -168,11 +169,115 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	index := r.Form.Get("index")
-	if index == "0" {
+
+	s.Articles.RemoveArticle(index)
+	go db.BackupArticles(s.Ctx, s.Articles)
+}
+
+func edit(w http.ResponseWriter, r *http.Request) {
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
 		return
 	}
 
-	s.Articles.RemoveArticle(index)
+	if r.Method == "POST" {
+		r.ParseForm()
+		index := r.Form.Get("index")
+		http.Redirect(w, r, "/editArticle?index="+index, http.StatusSeeOther)
+	}
+
+	data := *s.Articles
+	err := tpl.ExecuteTemplate(w, "editList.html", data)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+}
+
+func editArticle(w http.ResponseWriter, r *http.Request) {
+	if !checkCookie(w, r) {
+		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
+		return
+	}
+
+	if r.Method == "POST" {
+		editTheArticle(w, r)
+		http.Redirect(w, r, "/edit", http.StatusSeeOther)
+	}
+
+	r.ParseForm()
+	index := r.Form.Get("index")
+	i, err := strconv.Atoi(index)
+	if err != nil {
+		http.Error(w, "Unable to parse index", http.StatusBadRequest)
+	}
+
+	articles := *s.Articles
+	data := struct {
+		Index int
+		db.Article
+	}{
+		i,
+		articles[i],
+	}
+
+	err = tpl.ExecuteTemplate(w, "edit.html", data)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+}
+
+func editTheArticle(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	index := r.Form.Get("hidden")
+	title := r.Form.Get("title")
+	url := r.Form.Get("url")
+	date := strings.TrimSpace(r.Form.Get("date"))
+	tags := r.Form.Get("tags")
+	xtags := strings.Split(tags, ";")
+
+	a, err := db.NewArticle()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	a.Title = title
+	a.URL = url
+	if err := a.SetDate(date); err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+	}
+
+	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
+	regexYear := regexp.MustCompile(`^\d{4}`)
+	regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
+	for _, t := range xtags {
+		if t == "" {
+			continue
+		}
+		t = strings.TrimSpace(t)
+		if regex.MatchString(t) {
+			year := regexYear.FindString(t)
+			number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
+
+			// check if question exists
+			key := year + " " + number
+			_, ok := s.Questions[key]
+			if !ok {
+				http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
+				return
+			}
+
+			if err := a.SetQuestions(year, number, s.Questions); err != nil {
+				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			}
+		} else {
+			a.SetTopics(strings.Title(t))
+		}
+	}
+
+	s.Articles.EditArticle(index, *a)
 	go db.BackupArticles(s.Ctx, s.Articles)
 }
 
