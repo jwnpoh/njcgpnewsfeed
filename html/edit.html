@@ -72,8 +72,7 @@
               id="tags"
               type="text"
               name="tags"
-              value="{{range $topic := .Topics}}{{$topic}}; {{end}}{{range
-              $question := .Questions}}{{$question.Year}} Q{{$question.Number}}; {{end}}"
+              value="{{range $topic := .Topics}}{{$topic}}; {{end}}{{range $question := .Questions}}{{$question.Year}} Q{{$question.Number}}; {{end}}"
               class="validate"
             />
             <label for="tags">Tags</label>

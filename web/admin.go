@@ -97,6 +97,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	url := r.Form.Get("url")
 	date := r.Form.Get("date")
 	tags := r.Form.Get("tags")
+	tags = strings.TrimSuffix(strings.TrimSpace(tags), ";")
 	xtags := strings.Split(tags, ";")
 
 	a, err := db.NewArticle()
@@ -235,6 +236,7 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 	url := r.Form.Get("url")
 	date := strings.TrimSpace(r.Form.Get("date"))
 	tags := r.Form.Get("tags")
+	tags = strings.TrimSuffix(strings.TrimSpace(tags), ";")
 	xtags := strings.Split(tags, ";")
 
 	a, err := db.NewArticle()

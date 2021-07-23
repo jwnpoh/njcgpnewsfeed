@@ -102,6 +102,7 @@ func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
 	}
 
 	db[i] = article
+	sort.Sort(sort.Reverse(db))
 	return nil
 }
 
