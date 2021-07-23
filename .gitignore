@@ -1,5 +1,7 @@
 *.json
 .gcloudignore
 *.yaml
+.dockerignore
+Dockerfile
 
 

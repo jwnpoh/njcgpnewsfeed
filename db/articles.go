@@ -94,6 +94,18 @@ func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
 	return nil
 }
 
+// EditArticle is a function that the admin can invoke from the live app to edit a specific article.
+func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
+	i, err := strconv.Atoi(index)
+	if err != nil {
+		return fmt.Errorf("unable to parse index of article: %w", err)
+	}
+
+	db[i] = article
+	sort.Sort(sort.Reverse(db))
+	return nil
+}
+
 // RemoveArticle is a function that the admin can invoke from the live app to remove any offending article.
 func (db ArticlesDBByDate) RemoveArticle(index string) {
 	j, _ := strconv.Atoi(index)
