@@ -23,9 +23,8 @@ type Article struct {
 	Date        int64
 }
 
-// Define topic-related data structures
+// Topic represents a searchable tag for each article.
 type Topic string
-type TopicsMap map[Topic]Article
 
 // SetTopics is a wrapper around an append function to append multiple topics to the Article struct a.
 func (a *Article) SetTopics(topics ...string) error {
@@ -61,6 +60,14 @@ func (a *Article) SetDate(date string) error {
 	return nil
 }
 
+// AddArticleToDB takes a pointer to an article that has already had all its fields populated and adds it to the articles database, sorting by most recent published date.
+func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
+	*db = append(*db, *a)
+	sort.Sort(sort.Reverse(db))
+
+	return nil
+}
+
 // NewArticle returns an Article in order to populate fields for adding to the articles database.
 func NewArticle() (*Article, error) {
 	var a Article
@@ -86,14 +93,6 @@ func NewArticlesDBByDate() *ArticlesDBByDate {
 	return &db
 }
 
-// AddArticleToDB takes a pointer to an article that has already had all its fields populated and adds it to the articles database, sorting by most recent published date.
-func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
-	*db = append(*db, *a)
-	sort.Sort(sort.Reverse(db))
-
-	return nil
-}
-
 // EditArticle is a function that the admin can invoke from the live app to edit a specific article.
 func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
 	i, err := strconv.Atoi(index)
@@ -114,7 +113,7 @@ func (db ArticlesDBByDate) RemoveArticle(index string) {
 }
 
 // InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
-func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
+func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
 	srv, err := newSheetsService(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to start Sheets service: %w", err)
@@ -146,7 +145,7 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 		}
 
 		if row[3] == "" {
-			*database = append(*database, *a)
+			*db = append(*db, *a)
 			continue
 		}
 
@@ -158,10 +157,10 @@ func (database *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB Quest
 			number := fields[1]
 			a.SetQuestions(year, number, qnDB)
 		}
-		*database = append(*database, *a)
+		*db = append(*db, *a)
 	}
 
-	sort.Sort(sort.Reverse(database))
+	sort.Sort(sort.Reverse(db))
 
 	return nil
 }

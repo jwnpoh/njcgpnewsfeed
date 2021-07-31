@@ -22,6 +22,7 @@ Author: Joel Poh
 
 var tpl *template.Template
 
+// Server represents all objects to be initialised in the application.
 type Server struct {
 	Port        string
 	TemplateDir string

@@ -57,9 +57,8 @@ func admin(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			return
-		} else {
-			http.Redirect(w, r, "/admin", http.StatusUnauthorized)
-		}
+		} 
+    http.Redirect(w, r, "/admin", http.StatusUnauthorized)
 	}
 
 	err := tpl.ExecuteTemplate(w, "admin.html", nil)

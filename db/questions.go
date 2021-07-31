@@ -9,15 +9,17 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+// Question is a struct that represents the question object in each article entry in the ArticlesDBByDate.
 type Question struct {
 	Year    string
 	Number  string
 	Wording string
 }
 
+// QuestionsDB is a map of questions for quick searching.
 type QuestionsDB map[string]Question
 
-// MapQuestions maps a list of questions in a file named by filename and maps them to a questions database.
+// InitQuestionsDB maps a list of questions in a file named by filename and maps them to a questions database.
 func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 	qnDB := make(map[string]Question)
 
@@ -26,7 +28,7 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 		return qnDB, fmt.Errorf("unable to start Sheets service: %w", err)
 	}
 
-    sheetRange:= "Questions"
+	sheetRange := "Questions"
 	data, err := getSheetData(srv, sheetRange)
 	if err != nil {
 		return qnDB, fmt.Errorf("unable to get sheet data: %w", err)
@@ -35,7 +37,6 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 	if len(data.Values) == 0 {
 		return qnDB, fmt.Errorf("no data found")
 	}
-
 
 	for _, row := range data.Values {
 		year := fmt.Sprintf("%v", row[1])
@@ -77,6 +78,7 @@ func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
 	return nil
 }
 
+// AppendQuestion appends a question to the initialised QuestionsDB.
 func AppendQuestion(ctx context.Context, qn Question) error {
 	srv, err := newSheetsService(ctx)
 	if err != nil {
@@ -89,10 +91,10 @@ func AppendQuestion(ctx context.Context, qn Question) error {
 	var valueRange sheets.ValueRange
 	valueRange.Values = make([][]interface{}, 0, 1)
 
-    record := make([]interface{}, 0, 5)
-    key := qn.Year + " " + qn.Number
-    record = append(record, key, qn.Year, qn.Number, qn.Wording)
-    valueRange.Values = append(valueRange.Values, record)
+	record := make([]interface{}, 0, 5)
+	key := qn.Year + " " + qn.Number
+	record = append(record, key, qn.Year, qn.Number, qn.Wording)
+	valueRange.Values = append(valueRange.Values, record)
 
 	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
 	if err != nil {
