@@ -41,6 +41,7 @@ func SearchAND(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	terms := strings.Split(term, "AND")
 
 	for i, t := range terms {
+    t = strings.TrimSpace(t)
 		temp = SearchAll(t, database)
 		database = temp
 		temp = NewArticlesDBByDate()
@@ -57,6 +58,7 @@ func SearchOR(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	terms := strings.Split(term, "OR")
 
 	for _, t := range terms {
+    t = strings.TrimSpace(t)
 		for _, i := range *database {
 			if !searchTitle(t, i) && !searchTopics(t, i) && !searchQuestions(t, i) && !searchDate(t, i) {
 				continue
@@ -77,6 +79,7 @@ func SearchNOT(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	termsToExclude := terms[1:]
 
 	for _, exclude := range termsToExclude {
+    exclude = strings.TrimSpace(exclude)
 		for _, i := range *database {
 			if searchTitle(exclude, i) || searchTopics(exclude, i) || searchQuestions(exclude, i) || searchDate(exclude, i) {
 				continue
@@ -89,7 +92,8 @@ func SearchNOT(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	}
 
 	for _, i := range *database {
-		if !searchTitle(term, i) && !searchTopics(term, i) && !searchQuestions(term, i) && !searchDate(term, i) {
+    t := strings.TrimSpace(terms[0])
+		if !searchTitle(t, i) && !searchTopics(t, i) && !searchQuestions(t, i) && !searchDate(t, i) {
 			continue
 		} else {
 			*results = append(*results, i)
