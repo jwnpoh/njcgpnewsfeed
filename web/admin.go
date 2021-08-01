@@ -85,6 +85,13 @@ func form(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type formData struct{
+  title string
+  url string
+  date string
+  tags []string
+}
+
 func addArticle(w http.ResponseWriter, r *http.Request) {
 	if !checkCookie(w, r) {
 		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
@@ -95,49 +102,20 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	title := r.Form.Get("title")
 	url := r.Form.Get("url")
 	date := r.Form.Get("date")
-	tags := r.Form.Get("tags")
-	tags = strings.TrimSuffix(strings.TrimSpace(tags), ";")
-	xtags := strings.Split(tags, ";")
+	tags := splitTags(r.Form.Get("tags"))
 
-	a, err := db.NewArticle()
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	}
+  data := formData{
+    title,
+    url,
+    date,
+    tags,
+  }
 
-	a.Title = title
-	a.URL = url
-	if err := a.SetDate(date); err != nil {
+  a, err := formToArticle(data)
+  if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-	}
+  }
 
-	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
-	regexYear := regexp.MustCompile(`^\d{4}`)
-	regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
-	for _, t := range xtags {
-		if t == "" {
-			continue
-		}
-		t = strings.TrimSpace(t)
-		if regex.MatchString(t) {
-			year := regexYear.FindString(t)
-			number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
-
-			// check if question exists
-			key := year + " " + number
-			_, ok := s.Questions[key]
-			if !ok {
-				http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
-				return
-			}
-
-			if err := a.SetQuestions(year, number, s.Questions); err != nil {
-				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-			}
-		} else {
-			a.SetTopics(strings.Title(t))
-		}
-	}
 	a.AddArticleToDB(s.Articles)
 	go db.AppendArticle(s.Ctx, a)
 	go db.AppendArticleToOld(s.Ctx, a)
@@ -234,49 +212,19 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 	title := r.Form.Get("title")
 	url := r.Form.Get("url")
 	date := strings.TrimSpace(r.Form.Get("date"))
-	tags := r.Form.Get("tags")
-	tags = strings.TrimSuffix(strings.TrimSpace(tags), ";")
-	xtags := strings.Split(tags, ";")
+  tags := splitTags(r.Form.Get("tags"))
 
-	a, err := db.NewArticle()
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	}
+  data := formData{
+    title,
+    url,
+    date,
+    tags,
+  }
 
-	a.Title = title
-	a.URL = url
-	if err := a.SetDate(date); err != nil {
+  a, err := formToArticle(data)
+  if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-	}
-
-	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
-	regexYear := regexp.MustCompile(`^\d{4}`)
-	regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
-	for _, t := range xtags {
-		if t == "" {
-			continue
-		}
-		t = strings.TrimSpace(t)
-		if regex.MatchString(t) {
-			year := regexYear.FindString(t)
-			number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
-
-			// check if question exists
-			key := year + " " + number
-			_, ok := s.Questions[key]
-			if !ok {
-				http.Error(w, fmt.Sprintf("The question for %v Q%v does not exist in the database. Please add the question first then try adding this article again.", year, number), http.StatusNotFound)
-				return
-			}
-
-			if err := a.SetQuestions(year, number, s.Questions); err != nil {
-				http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-			}
-		} else {
-			a.SetTopics(strings.Title(t))
-		}
-	}
+  }
 
 	s.Articles.EditArticle(index, *a)
 	go db.BackupArticles(s.Ctx, s.Articles)
@@ -358,4 +306,52 @@ func getTitle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, titleText)
+}
+
+func splitTags(tags string) []string {
+	tags = strings.TrimSuffix(strings.TrimSpace(tags), ";")
+	xtags := strings.Split(tags, ";")
+
+  return xtags
+}
+
+func formToArticle(data formData) (*db.Article, error) {
+	a, err := db.NewArticle()
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialise new article: %w", err)
+  }
+
+	a.Title = data.title
+	a.URL = data.url
+	if err := a.SetDate(data.date); err != nil {
+    return nil, fmt.Errorf("unable to parse date %v: %w", data.date, err)
+	}
+
+	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
+	regexYear := regexp.MustCompile(`^\d{4}`)
+	regexNumber := regexp.MustCompile(`(q|Q)\d{1,2}$`)
+	for _, t := range data.tags {
+		if t == "" {
+			continue
+		}
+		t = strings.TrimSpace(t)
+		if regex.MatchString(t) {
+			year := regexYear.FindString(t)
+			number := strings.TrimLeft(regexNumber.FindString(t), "qQ")
+
+			// check if question exists
+			key := year + " " + number
+			_, ok := s.Questions[key]
+			if !ok {
+        return nil, fmt.Errorf("the question for %v Q%v does not exist in the database. Please add the question to the database first before adding this article again", year, number)
+			}
+
+			if err := a.SetQuestions(year, number, s.Questions); err != nil {
+        return nil, fmt.Errorf("unable to tag questions to the article. Article not created: %w", err)
+			}
+		} else {
+			a.SetTopics(strings.Title(t))
+		}
+	}
+  return a, nil
 }
