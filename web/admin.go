@@ -85,11 +85,11 @@ func form(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type formData struct{
-  title string
-  url string
-  date string
-  tags []string
+type formData struct {
+	title string
+	url   string
+	date  string
+	tags  []string
 }
 
 func addArticle(w http.ResponseWriter, r *http.Request) {
@@ -104,17 +104,17 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	date := r.Form.Get("date")
 	tags := splitTags(r.Form.Get("tags"))
 
-  data := formData{
-    title,
-    url,
-    date,
-    tags,
-  }
+	data := formData{
+		title,
+		url,
+		date,
+		tags,
+	}
 
-  a, err := formToArticle(data)
-  if err != nil {
+	a, err := formToArticle(data)
+	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-  }
+	}
 
 	a.AddArticleToDB(s.Articles)
 	go db.AppendArticle(s.Ctx, a)
@@ -212,19 +212,19 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 	title := r.Form.Get("title")
 	url := r.Form.Get("url")
 	date := strings.TrimSpace(r.Form.Get("date"))
-  tags := splitTags(r.Form.Get("tags"))
+	tags := splitTags(r.Form.Get("tags"))
 
-  data := formData{
-    title,
-    url,
-    date,
-    tags,
-  }
+	data := formData{
+		title,
+		url,
+		date,
+		tags,
+	}
 
-  a, err := formToArticle(data)
-  if err != nil {
+	a, err := formToArticle(data)
+	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-  }
+	}
 
 	s.Articles.EditArticle(index, *a)
 	go db.BackupArticles(s.Ctx, s.Articles)
@@ -312,19 +312,19 @@ func splitTags(tags string) []string {
 	tags = strings.TrimSuffix(strings.TrimSpace(tags), ";")
 	xtags := strings.Split(tags, ";")
 
-  return xtags
+	return xtags
 }
 
 func formToArticle(data formData) (*db.Article, error) {
 	a, err := db.NewArticle()
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialise new article: %w", err)
-  }
+	}
 
 	a.Title = data.title
 	a.URL = data.url
 	if err := a.SetDate(data.date); err != nil {
-    return nil, fmt.Errorf("unable to parse date %v: %w", data.date, err)
+		return nil, fmt.Errorf("unable to parse date %v: %w", data.date, err)
 	}
 
 	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
@@ -343,15 +343,15 @@ func formToArticle(data formData) (*db.Article, error) {
 			key := year + " " + number
 			_, ok := s.Questions[key]
 			if !ok {
-        return nil, fmt.Errorf("the question for %v Q%v does not exist in the database. Please add the question to the database first before adding this article again", year, number)
+				return nil, fmt.Errorf("the question for %v Q%v does not exist in the database. Please add the question to the database first before adding this article again", year, number)
 			}
 
 			if err := a.SetQuestions(year, number, s.Questions); err != nil {
-        return nil, fmt.Errorf("unable to tag questions to the article. Article not created: %w", err)
+				return nil, fmt.Errorf("unable to tag questions to the article. Article not created: %w", err)
 			}
 		} else {
 			a.SetTopics(strings.Title(t))
 		}
 	}
-  return a, nil
+	return a, nil
 }

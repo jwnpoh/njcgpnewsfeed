@@ -31,7 +31,6 @@ func SearchAll(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 			*results = append(*results, i)
 		}
 	}
-
 	return results
 }
 
@@ -49,7 +48,6 @@ func SearchAND(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 			results = database
 		}
 	}
-
 	return results
 }
 
@@ -66,9 +64,7 @@ func SearchOR(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 				*results = append(*results, i)
 			}
 		}
-
 	}
-
 	return results
 }
 
@@ -104,14 +100,14 @@ func SearchNOT(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 }
 
 func searchTitle(term string, a Article) bool {
-	return strings.Contains(strings.ToLower(a.Title), strings.ToLower(term))
+	rx := regexp.MustCompile(`\b` + strings.ToLower(term) + `\b`)
+	return rx.MatchString(strings.ToLower(a.Title))
 }
 
 func searchTopics(term string, a Article) bool {
+	rx := regexp.MustCompile(`\b` + strings.ToLower(term) + `\b`)
 	for _, j := range a.Topics {
-		if strings.Contains(strings.ToLower(string(j)), strings.ToLower(term)) {
-			return true
-		}
+		return rx.MatchString(strings.ToLower(string(j)))
 	}
 	return false
 }
@@ -124,17 +120,13 @@ func searchQuestions(term string, a Article) bool {
 	switch {
 	case searchYr.MatchString(term):
 		for _, j := range a.Questions {
-			if j.Year == term {
-				return true
-			}
+			return j.Year == term
 		}
 	case searchQnNo.MatchString(term):
 		cutQnNo := regexp.MustCompile(`(q|Q)\d{1,2}`)
 		qnNumber := strings.TrimLeft(strings.ToLower(cutQnNo.FindString(term)), "q")
 		for _, j := range a.Questions {
-			if j.Number == qnNumber {
-				return true
-			}
+			return j.Number == qnNumber
 		}
 	case searchYrAndQn.MatchString(term):
 		cutQnNo := regexp.MustCompile(`(q|Q)\d{1,2}`)
@@ -142,20 +134,18 @@ func searchQuestions(term string, a Article) bool {
 		cutYear := regexp.MustCompile(`\d{4}`)
 		year := cutYear.FindString(term)
 		for _, j := range a.Questions {
-			if j.Number == qnNumber && j.Year == year {
-				return true
-			}
+			return j.Number == qnNumber && j.Year == year
 		}
 	default:
 		for _, j := range a.Questions {
-			if strings.Contains(strings.ToLower(j.Wording), strings.ToLower(term)) {
-				return true
-			}
+			rx := regexp.MustCompile(`\b` + strings.ToLower(term) + `\b`)
+			return rx.MatchString(strings.ToLower(j.Wording))
 		}
 	}
 	return false
 }
 
 func searchDate(term string, a Article) bool {
-	return strings.Contains(strings.ToLower(a.DisplayDate), strings.ToLower(term))
+	rx := regexp.MustCompile(`\b` + strings.ToLower(term) + `\b`)
+	return rx.MatchString(strings.ToLower(a.DisplayDate))
 }
