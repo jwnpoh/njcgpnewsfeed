@@ -20,7 +20,6 @@ func (s *Server) router() {
 	http.HandleFunc("/add", addQuestion)
 	http.HandleFunc("/backup", backup)
 	http.HandleFunc("/getTitle", getTitle)
-	http.HandleFunc("/favicon.ico", http.NotFound)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
