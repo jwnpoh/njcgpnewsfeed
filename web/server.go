@@ -26,6 +26,8 @@ var tpl *template.Template
 type Server struct {
 	Port        string
 	TemplateDir string
+	AssetPath   string
+	AssetDir    string
 	Articles    *db.ArticlesDBByDate
 	Questions   db.QuestionsDB
 	Ctx         context.Context
@@ -39,6 +41,7 @@ func (s *Server) Start() error {
 	log.Printf(startMsg, s.Port)
 
 	s.parseTemplates()
+  s.serveStatic()
 	s.router()
 	err := http.ListenAndServe(":"+s.Port, nil)
 	if err != nil {
@@ -69,4 +72,8 @@ func NewServer() *Server {
 func (s *Server) parseTemplates() {
 	templates := filepath.Join(s.TemplateDir, "*html")
 	tpl = template.Must(template.ParseGlob(templates))
+}
+
+func (s *Server) serveStatic() {
+	http.Handle(s.AssetPath, http.StripPrefix(s.AssetPath, http.FileServer(http.Dir(s.AssetDir))))
 }
