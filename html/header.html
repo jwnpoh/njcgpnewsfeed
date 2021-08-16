@@ -8,7 +8,7 @@
           <a href="#" data-target="slide-out" class="top-nav sidenav-trigger show-on-large"><i class="material-icons">menu</i></a>
         </div>
         <div class="col s11">
-            <h5 class="header brand-logo center" style="font-size:x-large;margin: 1.5 0rem;"><a href="/">NJC GP News Feed</a></h5>
+            <h5 class="header brand-logo center" style="font-size:large;margin: 1.2em auto ;"><a href="/">NJC GP News Feed</a></h5>
         </div>
       </div>
     </div>
@@ -22,10 +22,10 @@
     <li><div class="divider"></div></li>
     <li class="search">
       <div class="search-wrapper" >
-        <form action="/search" method="GET">
+        <form action="/search" method="GET" id="form">
           <div class="input-field" >
                 <input style="padding: 0 32px;" placeholder="Search" type="text" name="term" id="search">
-                <i class="material-icons suffix">search</i>
+                <a href="#" onclick="document.getElementById('form').submit();" style="color: black;"><i class="material-icons suffix">search</i></a>
           </div>
         </form>
       </div>
