@@ -1,4 +1,6 @@
-# NJC GP News Feed
+<h1 align="center">NJC GP News Feed</h1>
+
+![screenshot of landing page](./screenshots/landing page.png)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/jwnpoh/njcgpnewsfeed)](https://goreportcard.com/report/github.com/jwnpoh/njcgpnewsfeed)
 [![CodeFactor](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed/badge)](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed)
@@ -26,7 +28,7 @@ This database of articles is available for students' viewing in various ways, li
 - Boolean search (AND, OR, NOT) is supported but not currently supporting combinations of boolean operators ("a" AND "b" NOT "c"). 
 
 ### For teachers:
-- Simple form to add new articles. The form attempts to remove as much tedium from the process as much as possible so that the curation is sustainable for teachers - automatic population of the article title (simply copy and paste the url of the source), topics and questions tags keyed in the same field and parsed automatically by the app.
+- Simple form to add new articles. The form attempts to remove as much tedium from the process as much as possible so that the curation is sustainable for teachers - automatic population of the article title (simply copy and paste the url of the source), topics and questions tags keyed in the same field and parsed automatically by the app. ![form](./screenshots/admin-addarticle.png)
 - Ability to edit articles. Teachers need to simply select the article that they wish to edit from a list of existing articles, and they will be presented with a form to make the necessary changes.
 - Ability to delete articles. Teachers need to simply select the article that they wish to delete and it's gone from the database.
 - Ability to add or update past year questions. There could be some past year questions that were missed out when setting up the initial database of past year questions, or that have some minor error that needs correcting. Teachers can use this function to do so.
