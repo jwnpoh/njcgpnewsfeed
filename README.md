@@ -1,7 +1,5 @@
 <h1 align="center">NJC GP News Feed</h1>
 
-![screenshot of landing page](./screenshots/landing page.png)
-
 [![CodeFactor](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed/badge)](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jwnpoh/njcgpnewsfeed)](https://goreportcard.com/report/github.com/jwnpoh/njcgpnewsfeed)
 
