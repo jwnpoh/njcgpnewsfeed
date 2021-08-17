@@ -2,8 +2,8 @@
 
 ![screenshot of landing page](./screenshots/landing page.png)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/jwnpoh/njcgpnewsfeed)](https://goreportcard.com/report/github.com/jwnpoh/njcgpnewsfeed)
 [![CodeFactor](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed/badge)](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jwnpoh/njcgpnewsfeed)](https://goreportcard.com/report/github.com/jwnpoh/njcgpnewsfeed)
 
 A key aspect of the General Paper syllabus is that students need to stay up to date with the current affairs of the day. Without substantial current affairs knowledge, students will not be able to practise and apply critical thinking skills to any reasonable depth and extent. Thus, regular reading of the news is essential. However, there are many news outlets, each pumping out an unrelenting slew of content on a daily basis. This can leave many students at a loss as to where to start when they resolve to cultivate a reading habit. 
 
