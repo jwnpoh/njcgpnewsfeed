@@ -41,4 +41,4 @@ This database of articles is available for students' viewing in various ways, li
 - Ability to add or update past year questions. There could be some past year questions that were missed out when setting up the initial database of past year questions, or that have some minor error that needs correcting. Teachers can use this function to do so.
 
 ## Acknowledgements
-Much thanks to [Materialize](https://github.com/materializecss/materialize) for making it easy for me to put together the html for this project.
+- [Materialize](https://github.com/materializecss/materialize) 
