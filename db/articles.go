@@ -48,6 +48,20 @@ func (a *Article) SetQuestions(year, number string, qnDB QuestionsDB) error {
 	return nil
 }
 
+func CountQuestion(year, number string, qnDB QuestionsDB) error {
+	if _, err := strconv.Atoi(year); err != nil {
+		return fmt.Errorf("the year input is not a number. try again")
+	}
+	if _, err := strconv.Atoi(number); err != nil {
+		return fmt.Errorf("the question number input is not a number. try again")
+	}
+	key := year + " " + number
+	qn := qnDB[key]
+	qn.Count += 1
+	qnDB[key] = qn
+	return nil
+}
+
 // SetDate is a wrapper around time.Parse to parse a date string to time.Time type, in order to call time.Unix() to return an int64 that makes the article sortable by date.
 func (a *Article) SetDate(date string) error {
 	t, err := time.Parse("Jan 2, 2006", date)
@@ -88,7 +102,7 @@ func (a ArticlesDBByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
 // NewArticlesDBByDate makes a slice of Articles to initialise the articles database.
 func NewArticlesDBByDate() *ArticlesDBByDate {
-	db := make(ArticlesDBByDate, 0, 50)
+	db := make(ArticlesDBByDate, 0, 100)
 
 	return &db
 }

@@ -266,7 +266,7 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 		number := r.Form.Get("number")
 		wording := r.Form.Get("wording")
 
-		qn := db.Question{Year: year, Number: number, Wording: wording}
+		qn := db.Question{Year: year, Number: number, Wording: wording, Count: 1}
 		key := year + " " + number
 		s.Questions[key] = qn
 		go db.AppendQuestion(s.Ctx, qn)
