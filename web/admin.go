@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jwnpoh/njcgpnewsfeed/db"
@@ -36,13 +37,25 @@ func checkCookie(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+func login(w http.ResponseWriter) {
+	var Stats struct {
+		TotalArticles   int
+		AverageArticles int
+	}
+
+	Stats.TotalArticles = s.Articles.Len()
+	Stats.AverageArticles = getAverageNumberOfArticles(Stats.TotalArticles)
+
+	err := tpl.ExecuteTemplate(w, "dashboard.html", Stats)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+}
+
 func admin(w http.ResponseWriter, r *http.Request) {
 	if checkCookie(w, r) {
-		err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
+		login(w)
 		return
 	}
 
@@ -50,12 +63,7 @@ func admin(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		if r.Form.Get("user") == os.Getenv("ADMIN") && r.Form.Get("password") == os.Getenv("PASSWORD") {
 			setCookie(w, r)
-
-			err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
-			if err != nil {
-				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-				return
-			}
+			login(w)
 			return
 		}
 		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
@@ -354,4 +362,18 @@ func formToArticle(data formData) (*db.Article, error) {
 		}
 	}
 	return a, nil
+}
+
+func getAverageNumberOfArticles(numOfArticles int) int {
+	var average int
+
+	dateOfLaunch, err := time.Parse("Jan 2, 2006", "Jan 15, 2021")
+	if err != nil {
+		return -1
+	}
+	timeLive := time.Since(dateOfLaunch)
+	daysLive := int(timeLive.Hours()) / 24
+
+	average = numOfArticles / daysLive
+	return average
 }
