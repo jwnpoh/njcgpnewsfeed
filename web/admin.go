@@ -41,10 +41,20 @@ func login(w http.ResponseWriter) {
 	var Stats struct {
 		TotalArticles   int
 		AverageArticles int
+		TopQuestions    []db.Question
+		BottomQuestions []db.Question
 	}
 
+	// get total number of articles in db.
 	Stats.TotalArticles = s.Articles.Len()
+
+	// get average number of articles per day.
 	Stats.AverageArticles = getAverageNumberOfArticles(Stats.TotalArticles)
+
+	// get top 5 and bottom 5 questions ranked by number of articles tagged.
+	allQns := db.RankQuestionsByArticleCount(s.Questions)
+	Stats.TopQuestions = allQns[:5]
+	Stats.BottomQuestions = allQns[len(allQns)-5:]
 
 	err := tpl.ExecuteTemplate(w, "dashboard.html", Stats)
 	if err != nil {
