@@ -121,13 +121,11 @@ func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
 }
 
 // RemoveArticle is a function that the admin can invoke from the live app to remove any offending article.
-func (db *ArticlesDBByDate) RemoveArticle(index int, qnDB QuestionsDB) QuestionsDB {
-	d := *db
-	article := d[index]
+func (db ArticlesDBByDate) RemoveArticle(index int, qnDB QuestionsDB) QuestionsDB {
+	article := db[index]
 	newQnDB := RemoveArticleQuestions(article, qnDB)
-	copy(d[index:], d[index+1:])
-	d[len(d)-1] = Article{}
-	*db = d[:len(d)-1]
+	copy(db[index:], db[index+1:])
+	db[len(db)-1] = Article{}
 	return newQnDB
 }
 
