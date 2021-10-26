@@ -80,6 +80,18 @@ func RankQuestionsByArticleCount(db QuestionsDB) QuestionsByArticleCount {
 	return allQns
 }
 
+// RemoveArticleQuestions updates the count of articles tagged to the questions of a deleted article and returns an updated QuestionsDB.
+func RemoveArticleQuestions(article Article, qnDB QuestionsDB) QuestionsDB {
+	questions := article.Questions
+	for _, v := range questions {
+		key := v.Year + " " + v.Number
+		a := qnDB[key]
+		a.Count--
+		qnDB[key] = a
+	}
+	return qnDB
+}
+
 // BackupQuestions backs up the questions database to a predefined, hard-coded Google Sheet.
 func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
 	srv, err := newSheetsService(ctx)

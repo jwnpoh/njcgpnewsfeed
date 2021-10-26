@@ -135,6 +135,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.AddArticleToDB(s.Articles)
+	go db.BackupQuestions(s.Ctx, s.Questions)
 	go db.AppendArticle(s.Ctx, a)
 	go db.AppendArticleToOld(s.Ctx, a)
 }
@@ -164,10 +165,11 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
-	index := r.Form.Get("index")
+	index, _ := strconv.Atoi(r.Form.Get("index"))
 
-	s.Articles.RemoveArticle(index)
-	go db.BackupArticles(s.Ctx, s.Articles)
+	newQnDB := s.Articles.RemoveArticle(index, s.Questions)
+	s.Questions = newQnDB
+	go backup(w, r)
 }
 
 func edit(w http.ResponseWriter, r *http.Request) {
@@ -245,7 +247,7 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Articles.EditArticle(index, *a)
-	go db.BackupArticles(s.Ctx, s.Articles)
+	go backup(w, r)
 }
 
 func addQuestion(w http.ResponseWriter, r *http.Request) {
@@ -364,9 +366,11 @@ func formToArticle(data formData) (*db.Article, error) {
 				return nil, fmt.Errorf("the question for %v Q%v does not exist in the database. Please add the question to the database first before adding this article again", year, number)
 			}
 
-			if err := a.SetQuestions(year, number, s.Questions); err != nil {
+			qnDB, err := a.SetQuestionsNewArticle(year, number, s.Questions)
+			if err != nil {
 				return nil, fmt.Errorf("unable to tag questions to the article. Article not created: %w", err)
 			}
+			s.Questions = qnDB
 		} else {
 			a.SetTopics(strings.Title(t))
 		}
