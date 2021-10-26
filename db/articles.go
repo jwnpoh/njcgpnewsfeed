@@ -27,11 +27,26 @@ type Article struct {
 type Topic string
 
 // SetTopics is a wrapper around an append function to append multiple topics to the Article struct a.
-func (a *Article) SetTopics(topics ...string) error {
+func (a *Article) SetTopics(topics ...string) {
 	for _, j := range topics {
 		a.Topics = append(a.Topics, Topic(j))
 	}
-	return nil
+}
+
+// SetQuestionsNewArticle sets the []Question and increases the count for the question listing in the qnDB for the given Article item.
+func (a *Article) SetQuestionsNewArticle(year, number string, qnDB QuestionsDB) (QuestionsDB, error) {
+	if _, err := strconv.Atoi(year); err != nil {
+		return qnDB, fmt.Errorf("the year input is not a number. try again")
+	}
+	if _, err := strconv.Atoi(number); err != nil {
+		return qnDB, fmt.Errorf("the question number input is not a number. try again")
+	}
+	key := year + " " + number
+	qn := qnDB[key]
+	a.Questions = append(a.Questions, qn)
+	qn.Count++
+	qnDB[key] = qn
+	return qnDB, nil
 }
 
 // SetQuestions sets the []Question for the given Article item.
@@ -82,13 +97,13 @@ func NewArticle() (*Article, error) {
 type ArticlesDBByDate []Article
 
 // Implement sort.Sort interface
-func (a ArticlesDBByDate) Len() int           { return len(a) }
-func (a ArticlesDBByDate) Less(i, j int) bool { return a[i].Date < a[j].Date }
-func (a ArticlesDBByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (db ArticlesDBByDate) Len() int           { return len(db) }
+func (db ArticlesDBByDate) Less(i, j int) bool { return db[i].Date < db[j].Date }
+func (db ArticlesDBByDate) Swap(i, j int)      { db[i], db[j] = db[j], db[i] }
 
 // NewArticlesDBByDate makes a slice of Articles to initialise the articles database.
 func NewArticlesDBByDate() *ArticlesDBByDate {
-	db := make(ArticlesDBByDate, 0, 50)
+	db := make(ArticlesDBByDate, 0, 100)
 
 	return &db
 }
@@ -106,10 +121,14 @@ func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
 }
 
 // RemoveArticle is a function that the admin can invoke from the live app to remove any offending article.
-func (db ArticlesDBByDate) RemoveArticle(index string) {
-	j, _ := strconv.Atoi(index)
-	copy(db[j:], db[j+1:])
-	db[len(db)-1] = Article{}
+func (db *ArticlesDBByDate) RemoveArticle(index int, qnDB QuestionsDB) QuestionsDB {
+	d := *db
+	article := d[index]
+	newQnDB := RemoveArticleQuestions(article, qnDB)
+	copy(d[index:], d[index+1:])
+	d[len(d)-1] = Article{}
+	*db = d[:len(d)-1]
+	return newQnDB
 }
 
 // InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
@@ -137,7 +156,9 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 		}
 		a.Title = fmt.Sprintf("%v", row[0])
 		a.URL = fmt.Sprintf("%v", row[1])
-		a.SetDate(fmt.Sprintf("%v", row[5]))
+		if err := a.SetDate(fmt.Sprintf("%v", row[5])); err != nil {
+			return fmt.Errorf("%w", err)
+		}
 
 		topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
 		for _, t := range topics {
@@ -155,7 +176,9 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 			fields := strings.Split(qn, " ")
 			year := fields[0]
 			number := fields[1]
-			a.SetQuestions(year, number, qnDB)
+			if err := a.SetQuestions(year, number, qnDB); err != nil {
+				return fmt.Errorf("%w", err)
+			}
 		}
 		*db = append(*db, *a)
 	}

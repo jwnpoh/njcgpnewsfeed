@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jwnpoh/njcgpnewsfeed/db"
@@ -36,13 +37,35 @@ func checkCookie(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+func login(w http.ResponseWriter) {
+	var Stats struct {
+		TotalArticles   int
+		AverageArticles int
+		TopQuestions    []db.Question
+		BottomQuestions []db.Question
+	}
+
+	// get total number of articles in db.
+	Stats.TotalArticles = s.Articles.Len()
+
+	// get average number of articles per day.
+	Stats.AverageArticles = getAverageNumberOfArticles(Stats.TotalArticles)
+
+	// get top 5 and bottom 5 questions ranked by number of articles tagged.
+	allQns := db.RankQuestionsByArticleCount(s.Questions)
+	Stats.TopQuestions = allQns[:5]
+	Stats.BottomQuestions = allQns[len(allQns)-5:]
+
+	err := tpl.ExecuteTemplate(w, "dashboard.html", Stats)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+}
+
 func admin(w http.ResponseWriter, r *http.Request) {
 	if checkCookie(w, r) {
-		err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
+		login(w)
 		return
 	}
 
@@ -50,12 +73,7 @@ func admin(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		if r.Form.Get("user") == os.Getenv("ADMIN") && r.Form.Get("password") == os.Getenv("PASSWORD") {
 			setCookie(w, r)
-
-			err := tpl.ExecuteTemplate(w, "dashboard.html", nil)
-			if err != nil {
-				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-				return
-			}
+			login(w)
 			return
 		}
 		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
@@ -117,6 +135,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.AddArticleToDB(s.Articles)
+	go db.BackupQuestions(s.Ctx, s.Questions)
 	go db.AppendArticle(s.Ctx, a)
 	go db.AppendArticleToOld(s.Ctx, a)
 }
@@ -146,10 +165,11 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
-	index := r.Form.Get("index")
+	index, _ := strconv.Atoi(r.Form.Get("index"))
 
-	s.Articles.RemoveArticle(index)
-	go db.BackupArticles(s.Ctx, s.Articles)
+	newQnDB := s.Articles.RemoveArticle(index, s.Questions)
+	s.Questions = newQnDB
+	go backup(w, r)
 }
 
 func edit(w http.ResponseWriter, r *http.Request) {
@@ -227,7 +247,7 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Articles.EditArticle(index, *a)
-	go db.BackupArticles(s.Ctx, s.Articles)
+	go backup(w, r)
 }
 
 func addQuestion(w http.ResponseWriter, r *http.Request) {
@@ -248,7 +268,7 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 		number := r.Form.Get("number")
 		wording := r.Form.Get("wording")
 
-		qn := db.Question{Year: year, Number: number, Wording: wording}
+		qn := db.Question{Year: year, Number: number, Wording: wording, Count: 1}
 		key := year + " " + number
 		s.Questions[key] = qn
 		go db.AppendQuestion(s.Ctx, qn)
@@ -346,12 +366,28 @@ func formToArticle(data formData) (*db.Article, error) {
 				return nil, fmt.Errorf("the question for %v Q%v does not exist in the database. Please add the question to the database first before adding this article again", year, number)
 			}
 
-			if err := a.SetQuestions(year, number, s.Questions); err != nil {
+			qnDB, err := a.SetQuestionsNewArticle(year, number, s.Questions)
+			if err != nil {
 				return nil, fmt.Errorf("unable to tag questions to the article. Article not created: %w", err)
 			}
+			s.Questions = qnDB
 		} else {
 			a.SetTopics(strings.Title(t))
 		}
 	}
 	return a, nil
+}
+
+func getAverageNumberOfArticles(numOfArticles int) int {
+	var average int
+
+	dateOfLaunch, err := time.Parse("Jan 2, 2006", "Jan 15, 2021")
+	if err != nil {
+		return -1
+	}
+	timeLive := time.Since(dateOfLaunch)
+	daysLive := int(timeLive.Hours()) / 24
+
+	average = numOfArticles / daysLive
+	return average
 }

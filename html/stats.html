@@ -1,0 +1,88 @@
+{{define "stats"}}
+<div class="container">
+  <div class="divider"></div>
+  <div class="col s12">
+    <h5 class="center-align">Site stats</h3>
+  </div>
+  <div class="row">
+    <div class="col s6 m4">
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Total number of articles to date:</b></p><br>
+          <span class="card-title center-align">{{.TotalArticles}}</span>
+        </div>
+      </div>
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Average number of articles per day:</b></p><br>
+          <span class="card-title center-align">{{.AverageArticles}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col s6 m4">
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Topics with most articles:</b></p>
+            <ol>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+            </ol>
+        </div>
+      </div>
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Topics with fewest articles:</b></p>
+            <ol>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+            </ol>
+        </div>
+      </div>
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Most searched topics in the past week:</b></p>
+            <ol>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+            </ol>
+        </div>
+      </div>
+    </div>
+    <div class="col s6 m4">
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Questions with most articles:</b></p>
+            <ol>
+            {{range $question := .TopQuestions}}
+              <li>{{$question.Year}} Q{{$question.Number}} ({{$question.Count}})</li>
+            {{end}}
+            </ol>
+        </div>
+      </div>
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Questions with fewest articles:</b></p>
+            <ol>
+            {{range $question := .BottomQuestions}}
+              <li>{{$question.Year}} Q{{$question.Number}} ({{$question.Count}})</li>
+            {{end}}
+            </ol>
+        </div>
+      </div>
+      <div class="card grey lighten-5">
+        <div class="card-content">
+          <p class="center-align"><b>Most searched questions in the past week:</b></p>
+            <ol>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+              <li>Placeholder</li>
+            </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

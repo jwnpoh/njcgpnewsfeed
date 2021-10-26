@@ -18,34 +18,35 @@
 
   <body>
     <div class="container">
+      <div class="row"></div>
       <div class="row">
-        <h5 class="center-align">
+        <h4 class="center-align">
           Welcome to the admin dashboard! What would you like to do today?
         </h5>
       </div>
       <div class="row">
         <div class="divider"></div>
         <div class="row"></div>
-        <div class="col s3">
+        <div class="col s12 m6 l3">
           <h5 class="center-align"><a href="/form">Add article</a></h5>
           <p class="center-align">
             Add an article. Submit multiple forms to add multiple articles.
           </p>
         </div>
-        <div class="col s3">
+        <div class="col s12 m6 l3">
           <h5 class="center-align"><a href="/edit">Edit article</a></h5>
           <p class="center-align">
             Edit an article. Submit multiple forms to edit multiple articles.
           </p>
         </div>
-        <div class="col s3">
+        <div class="col s12 m6 l3">
           <h5 class="center-align"><a href="/delete">Delete article</a></h5>
           <p class="center-align">
             Delete an article. Submit multiple forms to delete multiple
             articles.
           </p>
         </div>
-        <div class="col s3">
+        <div class="col s12 m6 l3">
           <h5 class="center-align"><a href="/add">Add/Update question</a></h5>
           <p class="center-align">
             There might be the odd past year question that is missing from the
@@ -54,6 +55,8 @@
         </div>
       </div>
     </div>
+
+    {{template "stats" .}}
 
     <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
   </body>
