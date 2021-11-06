@@ -23,9 +23,6 @@ type Article struct {
 	Date        int64
 }
 
-// Topic represents a searchable tag for each article.
-type Topic string
-
 // SetTopics is a wrapper around an append function to append multiple topics to the Article struct a.
 func (a *Article) SetTopics(topics ...string) {
 	for _, j := range topics {
@@ -132,7 +129,7 @@ func (db *ArticlesDBByDate) RemoveArticle(index int, qnDB QuestionsDB) Questions
 }
 
 // InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
-func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB) error {
+func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB, tm TopicsMap) error {
 	srv, err := newSheetsService(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to start Sheets service: %w", err)
@@ -163,6 +160,7 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 		topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
 		for _, t := range topics {
 			a.SetTopics(t)
+			tm.Increment(t)
 		}
 
 		if row[3] == "" {

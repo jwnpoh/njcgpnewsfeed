@@ -3,6 +3,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,6 +31,7 @@ type Server struct {
 	AssetDir    string
 	Articles    *db.ArticlesDBByDate
 	Questions   db.QuestionsDB
+	Topics      db.TopicsCount
 	Ctx         context.Context
 	Srv         *sheets.Service
 }
@@ -40,8 +42,13 @@ var s Server
 func (s *Server) Start() error {
 	log.Printf(startMsg, s.Port)
 
+	// for testing
+	for _, v := range s.Topics {
+		fmt.Printf("%s:\t%d\n", string(v.Key), v.Value)
+	}
+
 	s.parseTemplates()
-  s.serveStatic()
+	s.serveStatic()
 	s.router()
 	err := http.ListenAndServe(":"+s.Port, nil)
 	if err != nil {
@@ -59,12 +66,17 @@ func NewServer() *Server {
 		log.Fatal(err)
 	}
 
-	if err := database.InitArticlesDB(ctx, qnDB); err != nil {
+	tm := db.InitTopicsMap()
+
+	if err := database.InitArticlesDB(ctx, qnDB, tm); err != nil {
 		log.Fatal(err)
 	}
 
+	tc := db.GetTopicsCount(tm)
+
 	s.Articles = database
 	s.Questions = qnDB
+	s.Topics = tc
 	s.Ctx = ctx
 	return &s
 }
