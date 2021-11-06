@@ -41,7 +41,6 @@ func (a *Article) SetQuestionsNewArticle(year, number string, qnDB QuestionsDB) 
 	key := year + " " + number
 	qn := qnDB[key]
 	a.Questions = append(a.Questions, qn)
-	qn.Count++
 	qnDB[key] = qn
 	return qnDB, nil
 }
@@ -118,18 +117,15 @@ func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
 }
 
 // RemoveArticle is a function that the admin can invoke from the live app to remove any offending article.
-func (db *ArticlesDBByDate) RemoveArticle(index int, qnDB QuestionsDB) QuestionsDB {
+func (db *ArticlesDBByDate) RemoveArticle(index int) {
 	d := *db
-	article := d[index]
-	newQnDB := RemoveArticleQuestions(article, qnDB)
 	copy(d[index:], d[index+1:])
 	d[len(d)-1] = Article{}
 	*db = d[:len(d)-1]
-	return newQnDB
 }
 
 // InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
-func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB, tm TopicsMap) error {
+func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB, tm TopicsMap, qc QuestionCounter) error {
 	srv, err := newSheetsService(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to start Sheets service: %w", err)
@@ -177,6 +173,7 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 			if err := a.SetQuestions(year, number, qnDB); err != nil {
 				return fmt.Errorf("%w", err)
 			}
+			qc.Increment(year + " - Q" + number)
 		}
 		*db = append(*db, *a)
 	}

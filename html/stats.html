@@ -24,9 +24,9 @@
         <div class="card-content">
           <p class="center-align"><b>Topics with most articles:</b></p>
             <ol>
-              <li>Placeholder</li>
-              <li>Placeholder</li>
-              <li>Placeholder</li>
+            {{range $topic := .TopTopics}}
+              <li>{{$topic.Key}} ({{$topic.Value}})</li>
+            {{end}}
             </ol>
         </div>
       </div>
@@ -34,9 +34,9 @@
         <div class="card-content">
           <p class="center-align"><b>Topics with fewest articles:</b></p>
             <ol>
-              <li>Placeholder</li>
-              <li>Placeholder</li>
-              <li>Placeholder</li>
+            {{range $topic := .BottomTopics}}
+              <li>{{$topic.Key}} ({{$topic.Value}})</li>
+            {{end}}
             </ol>
         </div>
       </div>
@@ -57,7 +57,7 @@
           <p class="center-align"><b>Questions with most articles:</b></p>
             <ol>
             {{range $question := .TopQuestions}}
-              <li>{{$question.Year}} Q{{$question.Number}} ({{$question.Count}})</li>
+              <li>{{$question.Key}} ({{$question.Value}})</li>
             {{end}}
             </ol>
         </div>
@@ -67,7 +67,7 @@
           <p class="center-align"><b>Questions with fewest articles:</b></p>
             <ol>
             {{range $question := .BottomQuestions}}
-              <li>{{$question.Year}} Q{{$question.Number}} ({{$question.Count}})</li>
+              <li>{{$question.Key}} ({{$question.Value}})</li>
             {{end}}
             </ol>
         </div>

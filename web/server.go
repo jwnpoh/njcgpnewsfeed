@@ -3,7 +3,6 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -25,15 +24,16 @@ var tpl *template.Template
 
 // Server represents all objects to be initialised in the application.
 type Server struct {
-	Port        string
-	TemplateDir string
-	AssetPath   string
-	AssetDir    string
-	Articles    *db.ArticlesDBByDate
-	Questions   db.QuestionsDB
-	Topics      db.TopicsCount
-	Ctx         context.Context
-	Srv         *sheets.Service
+	Port            string
+	TemplateDir     string
+	AssetPath       string
+	AssetDir        string
+	Articles        *db.ArticlesDBByDate
+	Questions       db.QuestionsDB
+	QuestionCounter db.QuestionCounter
+	Topics          db.TopicsMap
+	Ctx             context.Context
+	Srv             *sheets.Service
 }
 
 var s Server
@@ -41,11 +41,6 @@ var s Server
 // Start takes a Server already initialised with the initial data, parses templates and handlers, and starts ListenAndServe. Start is to be called by main in package main.
 func (s *Server) Start() error {
 	log.Printf(startMsg, s.Port)
-
-	// for testing
-	for _, v := range s.Topics {
-		fmt.Printf("%s:\t%d\n", string(v.Key), v.Value)
-	}
 
 	s.parseTemplates()
 	s.serveStatic()
@@ -67,16 +62,16 @@ func NewServer() *Server {
 	}
 
 	tm := db.InitTopicsMap()
+	qc := db.InitQuestionCounter()
 
-	if err := database.InitArticlesDB(ctx, qnDB, tm); err != nil {
+	if err := database.InitArticlesDB(ctx, qnDB, tm, qc); err != nil {
 		log.Fatal(err)
 	}
 
-	tc := db.GetTopicsCount(tm)
-
 	s.Articles = database
 	s.Questions = qnDB
-	s.Topics = tc
+	s.QuestionCounter = qc
+	s.Topics = tm
 	s.Ctx = ctx
 	return &s
 }

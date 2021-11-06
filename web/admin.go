@@ -41,8 +41,10 @@ func login(w http.ResponseWriter) {
 	var Stats struct {
 		TotalArticles   int
 		AverageArticles int
-		TopQuestions    []db.Question
-		BottomQuestions []db.Question
+		TopQuestions    db.QuestionsByArticleCount
+		BottomQuestions db.QuestionsByArticleCount
+		TopTopics       db.TopicsCount
+		BottomTopics    db.TopicsCount
 	}
 
 	// get total number of articles in db.
@@ -52,9 +54,14 @@ func login(w http.ResponseWriter) {
 	Stats.AverageArticles = getAverageNumberOfArticles(Stats.TotalArticles)
 
 	// get top 5 and bottom 5 questions ranked by number of articles tagged.
-	allQns := db.RankQuestionsByArticleCount(s.Questions)
-	Stats.TopQuestions = allQns[:5]
-	Stats.BottomQuestions = allQns[len(allQns)-5:]
+	qc := db.RankQuestionsByArticleCount(s.QuestionCounter)
+	Stats.TopQuestions = qc[:5]
+	Stats.BottomQuestions = qc[len(qc)-5:]
+
+	// get top 5 and bottom 5 topics ranked by number of articles tagged.
+	tc := db.GetTopicsCount(s.Topics)
+	Stats.TopTopics = tc[:5]
+	Stats.BottomTopics = tc[len(tc)-5:]
 
 	err := tpl.ExecuteTemplate(w, "dashboard.html", Stats)
 	if err != nil {
@@ -167,8 +174,7 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	index, _ := strconv.Atoi(r.Form.Get("index"))
 
-	newQnDB := s.Articles.RemoveArticle(index, s.Questions)
-	s.Questions = newQnDB
+	s.Articles.RemoveArticle(index)
 	go backup(w, r)
 }
 
@@ -268,7 +274,7 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 		number := r.Form.Get("number")
 		wording := r.Form.Get("wording")
 
-		qn := db.Question{Year: year, Number: number, Wording: wording, Count: 1}
+		qn := db.Question{Year: year, Number: number, Wording: wording}
 		key := year + " " + number
 		s.Questions[key] = qn
 		go db.AppendQuestion(s.Ctx, qn)
