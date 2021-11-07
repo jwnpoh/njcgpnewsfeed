@@ -141,7 +141,7 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 	}
 
-	a.AddArticleToDB(s.Articles)
+	a.AddArticleToDB(s.Articles, s.Topics, s.QuestionCounter)
 	go db.BackupQuestions(s.Ctx, s.Questions)
 	go db.AppendArticle(s.Ctx, a)
 	go db.AppendArticleToOld(s.Ctx, a)
@@ -174,7 +174,7 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	index, _ := strconv.Atoi(r.Form.Get("index"))
 
-	s.Articles.RemoveArticle(index)
+	s.Articles.RemoveArticle(index, s.Topics, s.QuestionCounter)
 	go backup(w, r)
 }
 

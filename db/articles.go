@@ -72,7 +72,15 @@ func (a *Article) SetDate(date string) error {
 }
 
 // AddArticleToDB takes a pointer to an article that has already had all its fields populated and adds it to the articles database, sorting by most recent published date.
-func (a *Article) AddArticleToDB(db *ArticlesDBByDate) error {
+func (a *Article) AddArticleToDB(db *ArticlesDBByDate, tm TopicsMap, qc QuestionCounter) error {
+	for _, v := range a.Topics {
+		tm.Increment(string(v))
+	}
+
+	for _, v := range a.Questions {
+		qc.Increment(v.Year + " - Q" + v.Number)
+	}
+
 	*db = append(*db, *a)
 	sort.Sort(sort.Reverse(db))
 
@@ -117,8 +125,17 @@ func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
 }
 
 // RemoveArticle is a function that the admin can invoke from the live app to remove any offending article.
-func (db *ArticlesDBByDate) RemoveArticle(index int) {
+func (db *ArticlesDBByDate) RemoveArticle(index int, tm TopicsMap, qc QuestionCounter) {
 	d := *db
+
+	for _, v := range d[index].Topics {
+		tm[v]--
+	}
+
+	for _, v := range d[index].Questions {
+		qc[v.Year+" - Q"+v.Number]--
+	}
+
 	copy(d[index:], d[index+1:])
 	d[len(d)-1] = Article{}
 	*db = d[:len(d)-1]
