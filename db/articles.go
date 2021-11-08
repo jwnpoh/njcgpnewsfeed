@@ -154,11 +154,7 @@ func (db *ArticlesDBByDate) RemoveArticle(index int, tm TopicsMap, qc QuestionCo
 
 	copy(d[index:], d[index+1:])
 	d[len(d)-1] = Article{}
-
-	newDB := make(ArticlesDBByDate, 0, len(d)-2)
-	newDB = d[:len(d)-1]
-	*db = nil
-	*db = newDB
+	*db = d
 }
 
 // InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
@@ -230,6 +226,7 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 	backupSheetID := os.Getenv("SHEET_ID")
 	backupSheetName := "Articles"
 
+	// setup values to write to sheet
 	var valueRange sheets.ValueRange
 	valueRange.Values = make([][]interface{}, 0, len(*database))
 
@@ -260,6 +257,7 @@ func BackupArticles(ctx context.Context, database *ArticlesDBByDate) error {
 		valueRange.Values = append(valueRange.Values, record)
 	}
 
+	// write to sheet
 	_, err = srv.Spreadsheets.Values.Update(backupSheetID, backupSheetName, &valueRange).ValueInputOption("RAW").Do()
 	if err != nil {
 		return fmt.Errorf("unable to backup data to backup sheet: %w", err)
