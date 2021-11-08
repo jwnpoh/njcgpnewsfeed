@@ -252,7 +252,7 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 	}
 
-	s.Articles.EditArticle(index, *a)
+	s.Articles.EditArticle(index, *a, s.Topics, s.QuestionCounter)
 	go backup(w, r)
 }
 

@@ -74,7 +74,7 @@ func (a *Article) SetDate(date string) error {
 // AddArticleToDB takes a pointer to an article that has already had all its fields populated and adds it to the articles database, sorting by most recent published date.
 func (a *Article) AddArticleToDB(db *ArticlesDBByDate, tm TopicsMap, qc QuestionCounter) error {
 	for _, v := range a.Topics {
-		tm.Increment(string(v))
+		tm.Increment(v)
 	}
 
 	for _, v := range a.Questions {
@@ -113,10 +113,26 @@ func NewArticlesDBByDate() *ArticlesDBByDate {
 }
 
 // EditArticle is a function that the admin can invoke from the live app to edit a specific article.
-func (db ArticlesDBByDate) EditArticle(index string, article Article) error {
+func (db ArticlesDBByDate) EditArticle(index string, article Article, tm TopicsMap, qc QuestionCounter) error {
 	i, err := strconv.Atoi(index)
 	if err != nil {
 		return fmt.Errorf("unable to parse index of article: %w", err)
+	}
+
+	for _, v := range db[i].Topics {
+		tm.Decrement(v)
+	}
+
+	for _, v := range db[i].Questions {
+		qc.Decrement(v.Year + " - Q" + v.Number)
+	}
+
+	for _, v := range article.Topics {
+		tm.Increment(v)
+	}
+
+	for _, v := range article.Questions {
+		qc.Increment(v.Year + " - Q" + v.Number)
 	}
 
 	db[i] = article
@@ -129,16 +145,20 @@ func (db *ArticlesDBByDate) RemoveArticle(index int, tm TopicsMap, qc QuestionCo
 	d := *db
 
 	for _, v := range d[index].Topics {
-		tm[v]--
+		tm.Decrement(v)
 	}
 
 	for _, v := range d[index].Questions {
-		qc[v.Year+" - Q"+v.Number]--
+		qc.Decrement(v.Year + " - Q" + v.Number)
 	}
 
 	copy(d[index:], d[index+1:])
 	d[len(d)-1] = Article{}
-	*db = d[:len(d)-1]
+
+	newDB := make(ArticlesDBByDate, 0, len(d)-2)
+	newDB = d[:len(d)-1]
+	*db = nil
+	*db = newDB
 }
 
 // InitArticlesDB initialises the articles database at first run. Data is downloaded from the incumbent Google Sheets and parsed into the app's data structure. This is meant to be executed only once.
@@ -173,7 +193,7 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 		topics := strings.Split(fmt.Sprintf("%v", row[2]), "\n")
 		for _, t := range topics {
 			a.SetTopics(t)
-			tm.Increment(t)
+			tm.Increment(Topic(t))
 		}
 
 		if row[3] == "" {

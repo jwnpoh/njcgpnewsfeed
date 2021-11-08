@@ -55,10 +55,20 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 // QuestionCount is an object to count number of articles per question.
 type QuestionCounter map[string]int
 
+// InitTopicsMap returns an initialised QuestionCounter map.
 func InitQuestionCounter() QuestionCounter { return make(map[string]int) }
 
-func (qc QuestionCounter) Increment(questionYearAndNo string) {
-	qc[questionYearAndNo]++
+// Increment increases the count for the question in the QuestionCounter map. Argument must be provided in the format qn.Year + " - Q" + qn.Number.
+func (qc QuestionCounter) Increment(key string) {
+	qc[key]++
+}
+
+// Decrement decreases the count for the question in the QuestionCounter map. Argument must be provided in the format qn.Year + " - Q" + qn.Number.
+func (qc QuestionCounter) Decrement(key string) {
+	qc[key]--
+	if qc[key] < 1 {
+		delete(qc, key)
+	}
 }
 
 // QuestionObject is an object to enable ranking of questions by number of articles tagged.
@@ -89,18 +99,6 @@ func RankQuestionsByArticleCount(counter QuestionCounter) QuestionsByArticleCoun
 
 	return qc
 }
-
-// RemoveArticleQuestions updates the count of articles tagged to the questions of a deleted article and returns an updated QuestionsDB.
-// func RemoveArticleQuestions(article Article, qnDB QuestionsDB) QuestionsDB {
-// 	questions := article.Questions
-// 	for _, v := range questions {
-// 		key := v.Year + " " + v.Number
-// 		a := qnDB[key]
-// 		a.Count--
-// 		qnDB[key] = a
-// 	}
-// 	return qnDB
-// }
 
 // BackupQuestions backs up the questions database to a predefined, hard-coded Google Sheet.
 func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
