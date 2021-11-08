@@ -24,14 +24,16 @@ var tpl *template.Template
 
 // Server represents all objects to be initialised in the application.
 type Server struct {
-	Port        string
-	TemplateDir string
-	AssetPath   string
-	AssetDir    string
-	Articles    *db.ArticlesDBByDate
-	Questions   db.QuestionsDB
-	Ctx         context.Context
-	Srv         *sheets.Service
+	Port            string
+	TemplateDir     string
+	AssetPath       string
+	AssetDir        string
+	Articles        *db.ArticlesDBByDate
+	Questions       db.QuestionsDB
+	QuestionCounter db.QuestionCounter
+	Topics          db.TopicsMap
+	Ctx             context.Context
+	Srv             *sheets.Service
 }
 
 var s Server
@@ -41,7 +43,7 @@ func (s *Server) Start() error {
 	log.Printf(startMsg, s.Port)
 
 	s.parseTemplates()
-  s.serveStatic()
+	s.serveStatic()
 	s.router()
 	err := http.ListenAndServe(":"+s.Port, nil)
 	if err != nil {
@@ -59,12 +61,17 @@ func NewServer() *Server {
 		log.Fatal(err)
 	}
 
-	if err := database.InitArticlesDB(ctx, qnDB); err != nil {
+	tm := db.InitTopicsMap()
+	qc := db.InitQuestionCounter()
+
+	if err := database.InitArticlesDB(ctx, qnDB, tm, qc); err != nil {
 		log.Fatal(err)
 	}
 
 	s.Articles = database
 	s.Questions = qnDB
+	s.QuestionCounter = qc
+	s.Topics = tm
 	s.Ctx = ctx
 	return &s
 }

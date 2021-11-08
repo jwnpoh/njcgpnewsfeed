@@ -16,8 +16,8 @@ func main() {
 		log.Printf("Defaulting to port %s", s.Port)
 	}
 	s.TemplateDir = "html"
-  s.AssetPath = "/assets/"
-  s.AssetDir = "assets"
+	s.AssetPath = "/assets/"
+	s.AssetDir = "assets"
 
 	log.Fatal(s.Start())
 }

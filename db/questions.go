@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strconv"
 
 	"google.golang.org/api/sheets/v4"
 )
@@ -16,7 +15,6 @@ type Question struct {
 	Year    string
 	Number  string
 	Wording string
-	Count   int
 }
 
 // QuestionsDB is a map of questions for quick searching.
@@ -45,13 +43,8 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 		year := fmt.Sprintf("%v", row[1])
 		number := fmt.Sprintf("%v", row[2])
 		wording := fmt.Sprintf("%v", row[3])
-		count := fmt.Sprintf("%v", row[4])
-		c, err := strconv.Atoi(count)
-		if err != nil {
-			return qnDB, fmt.Errorf("error processing sheet data")
-		}
 
-		qn := Question{year, number, wording, c}
+		qn := Question{year, number, wording}
 
 		key := year + " " + number
 		qnDB[key] = qn
@@ -59,37 +52,52 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 	return qnDB, nil
 }
 
+// QuestionCount is an object to count number of articles per question.
+type QuestionCounter map[string]int
+
+// InitTopicsMap returns an initialised QuestionCounter map.
+func InitQuestionCounter() QuestionCounter { return make(map[string]int) }
+
+// Increment increases the count for the question in the QuestionCounter map. Argument must be provided in the format qn.Year + " - Q" + qn.Number.
+func (qc QuestionCounter) Increment(key string) {
+	qc[key]++
+}
+
+// Decrement decreases the count for the question in the QuestionCounter map. Argument must be provided in the format qn.Year + " - Q" + qn.Number.
+func (qc QuestionCounter) Decrement(key string) {
+	qc[key]--
+	if qc[key] < 1 {
+		delete(qc, key)
+	}
+}
+
+// QuestionObject is an object to enable ranking of questions by number of articles tagged.
+type QuestionObject struct {
+	Key   string
+	Value int
+}
+
 // QuestionsByArticleCount is an object to rank questions by the number of articles tagged to each question.
-type QuestionsByArticleCount []Question
+type QuestionsByArticleCount []QuestionObject
 
 // Implement sort.Sort interface
 func (q QuestionsByArticleCount) Len() int           { return len(q) }
-func (q QuestionsByArticleCount) Less(i, j int) bool { return q[i].Count < q[j].Count }
+func (q QuestionsByArticleCount) Less(i, j int) bool { return q[i].Value < q[j].Value }
 func (q QuestionsByArticleCount) Swap(i, j int)      { q[i], q[j] = q[j], q[i] }
 
 // RankQuestionsByArticleCount converts a QuestionsDB into a slice of Article in order to count and rank questions by the numebr of articles tagged to each question.
-func RankQuestionsByArticleCount(db QuestionsDB) QuestionsByArticleCount {
-	allQns := make(QuestionsByArticleCount, 0)
+func RankQuestionsByArticleCount(counter QuestionCounter) QuestionsByArticleCount {
+	qc := make(QuestionsByArticleCount, len(counter))
 
-	for _, v := range db {
-		allQns = append(allQns, v)
+	var i int
+	for k, v := range counter {
+		qc[i] = QuestionObject{k, v}
+		i++
 	}
 
-	sort.Sort(sort.Reverse(allQns))
+	sort.Sort(sort.Reverse(qc))
 
-	return allQns
-}
-
-// RemoveArticleQuestions updates the count of articles tagged to the questions of a deleted article and returns an updated QuestionsDB.
-func RemoveArticleQuestions(article Article, qnDB QuestionsDB) QuestionsDB {
-	questions := article.Questions
-	for _, v := range questions {
-		key := v.Year + " " + v.Number
-		a := qnDB[key]
-		a.Count--
-		qnDB[key] = a
-	}
-	return qnDB
+	return qc
 }
 
 // BackupQuestions backs up the questions database to a predefined, hard-coded Google Sheet.
@@ -107,7 +115,7 @@ func BackupQuestions(ctx context.Context, qnDB QuestionsDB) error {
 
 	for k, v := range qnDB {
 		record := make([]interface{}, 0, 5)
-		record = append(record, k, v.Year, v.Number, v.Wording, v.Count)
+		record = append(record, k, v.Year, v.Number, v.Wording)
 		valueRange.Values = append(valueRange.Values, record)
 	}
 
@@ -134,7 +142,7 @@ func AppendQuestion(ctx context.Context, qn Question) error {
 
 	record := make([]interface{}, 0, 5)
 	key := qn.Year + " " + qn.Number
-	record = append(record, key, qn.Year, qn.Number, qn.Wording, qn.Count)
+	record = append(record, key, qn.Year, qn.Number, qn.Wording)
 	valueRange.Values = append(valueRange.Values, record)
 
 	_, err = srv.Spreadsheets.Values.Append(backupSheetID, backupSheetName, &valueRange).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
