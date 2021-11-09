@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Search runs a search of the given term through all the items stored in the database.
+// Search implements a switch statement to check which kind of search to run.
 func Search(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	// handle boolean search
 	switch {
@@ -21,6 +21,7 @@ func Search(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	}
 }
 
+// SearchAll runs a search of the given term through all the items stored in the database.
 func SearchAll(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	results := NewArticlesDBByDate()
 
@@ -34,6 +35,7 @@ func SearchAll(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	return results
 }
 
+// SearchAND runs an AND boolean search.
 func SearchAND(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	temp := NewArticlesDBByDate()
 	results := NewArticlesDBByDate()
@@ -51,6 +53,7 @@ func SearchAND(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	return results
 }
 
+// SearchOR runs an OR boolean search.
 func SearchOR(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	results := NewArticlesDBByDate()
 	terms := strings.Split(term, "OR")
@@ -68,6 +71,7 @@ func SearchOR(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	return results
 }
 
+// SearchNOT runs a NOT boolean search.
 func SearchNOT(term string, database *ArticlesDBByDate) *ArticlesDBByDate {
 	temp := NewArticlesDBByDate()
 	results := NewArticlesDBByDate()

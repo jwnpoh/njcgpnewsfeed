@@ -52,10 +52,10 @@ func InitQuestionsDB(ctx context.Context) (QuestionsDB, error) {
 	return qnDB, nil
 }
 
-// QuestionCount is an object to count number of articles per question.
+// QuestionCounter is an object to count number of articles per question.
 type QuestionCounter map[string]int
 
-// InitTopicsMap returns an initialised QuestionCounter map.
+// InitQuestionCounter returns an initialised QuestionCounter map.
 func InitQuestionCounter() QuestionCounter { return make(map[string]int) }
 
 // Increment increases the count for the question in the QuestionCounter map. Argument must be provided in the format qn.Year + " - Q" + qn.Number.
