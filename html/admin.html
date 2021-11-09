@@ -17,21 +17,23 @@
       <div class="row"></div>
       <div class="row"></div>
       <form action="/admin" method="POST">
-        <div class="row ">
-              <div class="input-field col s5">
-                <i class="material-icons prefix">account_circle</i>
-                <input id="user" type="text" name="user" class="validate">
-                <label for="user">User</label>
-              </div>
-              <div class="input-field col s5">
-                <i class="material-icons prefix">lock</i>
-                <input id="password" type="password" name="password" class="validate">
-                <label for="password">Password</label>
-              </div>
+          <div class="row ">
+            <div class="input-field col s12 m6">
+              <i class="material-icons prefix">account_circle</i>
+              <input id="user" type="text" name="user" class="validate">
+              <label for="user">User</label>
+            </div>
+            <div class="input-field col s12 m6">
+              <i class="material-icons prefix">lock</i>
+              <input id="password" type="password" name="password" class="validate">
+              <label for="password">Password</label>
+            </div>
+            <div class="col s12">
               <button class="btn-small waves-effect waves-light" type="submit">Login<i class="material-icons right">login</i>
               </button>
+            </div>
           </div>
-        </form>
+      </form>
     </div>
 
    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
