@@ -2,6 +2,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/jwnpoh/njcgpnewsfeed/db"
@@ -29,7 +30,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "index.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -40,7 +45,11 @@ func latest(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "latest.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -50,7 +59,11 @@ func all(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "all.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -60,7 +73,8 @@ func search(w http.ResponseWriter, r *http.Request) {
 	results := db.Search(q.Get("term"), s.Articles)
 
 	if len(q.Get("term")) == 0 || len(*results) == 0 {
-		http.Error(w, "Nothing matched the search term. Try refining your search term.", http.StatusNotFound)
+		msg := customError{ErrMsg: "Nothing matched the search term.", HelpMsg: "Try refining your search term, or try a different search term."}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 
@@ -74,7 +88,11 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "search.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -89,7 +107,11 @@ func errorPage(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "error.html", msg)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
