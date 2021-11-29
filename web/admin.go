@@ -3,6 +3,7 @@ package web
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html"
 	"io/ioutil"
@@ -16,6 +17,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/jwnpoh/njcgpnewsfeed/db"
 )
+
+type customError struct {
+	ErrMsg  string
+	HelpMsg string
+}
 
 func setCookie(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
@@ -37,7 +43,7 @@ func checkCookie(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-func login(w http.ResponseWriter) {
+func login(w http.ResponseWriter, r *http.Request) {
 	var Stats struct {
 		TotalArticles   int
 		AverageArticles int
@@ -65,14 +71,18 @@ func login(w http.ResponseWriter) {
 
 	err := tpl.ExecuteTemplate(w, "dashboard.html", Stats)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
 
 func admin(w http.ResponseWriter, r *http.Request) {
 	if checkCookie(w, r) {
-		login(w)
+		login(w, r)
 		return
 	}
 
@@ -80,7 +90,7 @@ func admin(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		if r.Form.Get("user") == os.Getenv("ADMIN") && r.Form.Get("password") == os.Getenv("PASSWORD") {
 			setCookie(w, r)
-			login(w)
+			login(w, r)
 			return
 		}
 		http.Redirect(w, r, "/admin", http.StatusUnauthorized)
@@ -88,7 +98,11 @@ func admin(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "admin.html", nil)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -105,7 +119,11 @@ func form(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "form.html", nil)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -136,9 +154,10 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 		tags,
 	}
 
-	a, err := formToArticle(data)
+	a, msg, err := formToArticle(data)
 	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
 	}
 
 	a.AddArticleToDB(s.Articles, s.Topics, s.QuestionCounter)
@@ -160,7 +179,11 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	data := *s.Articles
 	err := tpl.ExecuteTemplate(w, "delete.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -193,7 +216,11 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	data := *s.Articles
 	err := tpl.ExecuteTemplate(w, "editList.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -213,7 +240,12 @@ func editArticle(w http.ResponseWriter, r *http.Request) {
 	index := r.Form.Get("index")
 	i, err := strconv.Atoi(index)
 	if err != nil {
-		http.Error(w, "Unable to parse index", http.StatusBadRequest)
+		msg := customError{
+			ErrMsg:  "Unable to parse index of selected Article to edit.",
+			HelpMsg: "Try refreshing the page and try again.",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
 	}
 
 	articles := *s.Articles
@@ -227,7 +259,11 @@ func editArticle(w http.ResponseWriter, r *http.Request) {
 
 	err = tpl.ExecuteTemplate(w, "edit.html", data)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -247,9 +283,10 @@ func editTheArticle(w http.ResponseWriter, r *http.Request) {
 		tags,
 	}
 
-	a, err := formToArticle(data)
+	a, msg, err := formToArticle(data)
 	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
 	}
 
 	s.Articles.EditArticle(index, *a, s.Topics, s.QuestionCounter)
@@ -282,7 +319,11 @@ func addQuestion(w http.ResponseWriter, r *http.Request) {
 
 	err := tpl.ExecuteTemplate(w, "addQuestion.html", nil)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
 	}
 }
@@ -341,16 +382,18 @@ func splitTags(tags string) []string {
 	return xtags
 }
 
-func formToArticle(data formData) (*db.Article, error) {
+func formToArticle(data formData) (*db.Article, customError, error) {
 	a, err := db.NewArticle()
 	if err != nil {
-		return nil, fmt.Errorf("unable to initialise new article: %w", err)
+		msg := customError{ErrMsg: "Unable to initialise new Article.", HelpMsg: "Please try again."}
+		return nil, msg, err
 	}
 
 	a.Title = data.title
 	a.URL = data.url
 	if err := a.SetDate(data.date); err != nil {
-		return nil, fmt.Errorf("unable to parse date %v: %w", data.date, err)
+		msg := customError{ErrMsg: fmt.Sprintf("Unable to parse date %v", data.date), HelpMsg: "Check if the date has been entered correctly"}
+		return nil, msg, err
 	}
 
 	regex := regexp.MustCompile(`^\d{4}\s?-?\s?(q|Q)\d{1,2}$`)
@@ -369,19 +412,21 @@ func formToArticle(data formData) (*db.Article, error) {
 			key := year + " " + number
 			_, ok := s.Questions[key]
 			if !ok {
-				return nil, fmt.Errorf("the question for %v Q%v does not exist in the database. Please add the question to the database first before adding this article again", year, number)
+				msg := customError{ErrMsg: fmt.Sprintf("The question for %v Q%v does not exist in the database currently.", year, number), HelpMsg: "Please use the Add Question function to add the question to the database first, then try adding the article again."}
+				return nil, msg, errors.New("error")
 			}
 
 			qnDB, err := a.SetQuestionsNewArticle(year, number, s.Questions)
 			if err != nil {
-				return nil, fmt.Errorf("unable to tag questions to the article. Article not created: %w", err)
+				msg := customError{ErrMsg: fmt.Sprintf("Unable to tag the question %s to the article. Article not created.", key), HelpMsg: "Check if the question tag has been formatted correctly, in the form '2020-Q10'."}
+				return nil, msg, err
 			}
 			s.Questions = qnDB
 		} else {
 			a.SetTopics(strings.Title(t))
 		}
 	}
-	return a, nil
+	return a, customError{}, nil
 }
 
 func getAverageNumberOfArticles(numOfArticles int) int {

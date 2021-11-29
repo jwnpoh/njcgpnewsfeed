@@ -20,6 +20,7 @@ func (s *Server) router() {
 	http.HandleFunc("/add", addQuestion)
 	http.HandleFunc("/backup", backup)
 	http.HandleFunc("/getTitle", getTitle)
+	http.HandleFunc("/error", errorPage)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -76,5 +77,19 @@ func search(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
+}
 
+func errorPage(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	msg := customError{
+		ErrMsg:  q.Get("ErrMsg"),
+		HelpMsg: q.Get("HelpMsg"),
+	}
+
+	err := tpl.ExecuteTemplate(w, "error.html", msg)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
 }
