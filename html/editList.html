@@ -1,65 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Admin - NJC GP News Feed</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-  </head>
 
-  {{template "header"}}
+<head>
+  <title>Admin - NJC GP News Feed</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</head>
 
-  <body>
-    <div class="container">
-      <div class="row"></div>
-      <div class="row">
-        <a href="/admin"
-          ><i class="material-icons left">arrow_back</i>Back to admin
-          dashboard</a
-        >
-      </div>
-      <div class="row"></div>
-      <div class="row">
-        Please select the article to edit. To edit multiple articles, repeat the process as many times as necessary.
-      </div>
+{{template "header"}}
 
-      <div class="divider"></div>
-
-      <div class="row"></div>
-      <form action="/edit" method="POST">
-        <button
-          class="btn waves-effect waves-light red darken-1"
-          type="submit"
-          id="btn"
-        >
-          Edit article<i class="material-icons right">edit</i>
-        </button>
-        <div class="row"></div>
-        {{range $index, $article := .}}
-        <p>
-          <label for="index-{{$index}}">
-            <input
-              type="radio"
-              class="with-gap"
-              id="index-{{$index}}"
-              name="index"
-              value="{{$index}}"
-            />
-            <span>
-              {{$article.DisplayDate}} |
-              <a href="{{$article.URL}}" target="_blank" rel="noopener noreferrer">{{$article.Title}}</a>| {{range $topic := $article.Topics}}{{$topic}}, {{end}} |{{range $question := $article.Questions}}{{$question.Year}} Q{{$question.Number}}, {{end}}</span></label>
-        </p>
-        {{end}}
-      </form>
+<body>
+  <div class="container">
+    <div class="row"></div>
+    <div class="row">
+      <a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin
+        dashboard</a>
+    </div>
+    <div class="row"></div>
+    <div class="row">
+      Please select the article to edit. To edit multiple articles, repeat the process as many times as necessary.
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
-  </body>
+    <div class="divider"></div>
+
+    <div class="row"></div>
+    <form action="/edit" method="POST">
+      <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn">
+        Edit article<i class="material-icons right">edit</i>
+      </button>
+      <div class="row"></div>
+      {{range $index, $article := .}}
+      <p>
+        <label for="index-{{$index}}">
+          <input type="radio" class="with-gap" id="index-{{$index}}" name="index" value="{{$index}}" />
+          <span>
+            {{$article.DisplayDate}} |
+            <a href="{{$article.URL}}" target="_blank" rel="noopener noreferrer">{{$article.Title}}</a>| {{range $topic
+            := $article.Topics}}{{$topic}}, {{end}} |{{range $question := $article.Questions}}{{$question.Year}}
+            Q{{$question.Number}}, {{end}}</span></label>
+      </p>
+      {{end}}
+    </form>
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+</body>
+
 </html>
