@@ -3,7 +3,6 @@
 ![screenshot of landing page](./screenshots/landing-page.png)
 
 ---
-
 [![Go Report Card](https://goreportcard.com/badge/github.com/jwnpoh/njcgpnewsfeed)](https://goreportcard.com/report/github.com/jwnpoh/njcgpnewsfeed)
 [![CodeFactor](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed/badge)](https://www.codefactor.io/repository/github/jwnpoh/njcgpnewsfeed)
 [![codebeat badge](https://codebeat.co/badges/5b7ad7d9-cb72-4ab9-9803-d69e9f36116e)](https://codebeat.co/projects/github-com-jwnpoh-njcgpnewsfeed-master)
