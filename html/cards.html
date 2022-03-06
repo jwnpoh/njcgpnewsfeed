@@ -13,11 +13,7 @@
                     <span class="card-title">{{$article.Title}}</span>
                   </div>
                     <span>
-                      <p style="font-size: medium;">
-                        {{range $topic := $article.Topics}}
-                        <a href="/search?term={{$topic}}" style="margin-right: 3px;"><em>#{{$topic}}</em></a>
-                        {{end}}
-                        </p>
+                      <p style="font-size: medium;"> {{range $topic := $article.Topics}} <a href="/search?term={{$topic}}" style="margin-right: 3px;"><em>#{{$topic}}</em></a> {{end}} </p>
                     </span>
                 </span>
                 <br>
