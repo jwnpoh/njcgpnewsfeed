@@ -1,46 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Admin - NJC GP News Feed</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
-     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  </head>
 
-  {{template "header"}}
+<head>
+  <title>Admin - NJC GP News Feed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="icon" href="/assets/favicon.ico" />
+</head>
 
-  <body>
-    <div class="container">
-      <div class="row"></div>
-      <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
-      <div class="row"></div>
-      <div class="row">Please enter the year, question number, and question wording.</div>
+{{template "header"}}
 
-      <div class="divider"></div>
+<body>
+  <div class="container">
+    <div class="row"></div>
+    <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
+    <div class="row"></div>
+    <div class="row">Please enter the year, question number, and question wording.</div>
 
-      <div class="row"></div>
-      <form action="/add" method="POST">
-        <div class="row">
-          <div class="input-field s2">
-            <input id="year" placeholder="2017" type="text" name="year" class="validate">
-            <label for="year">Year</label>
-          </div>
-          <div class="input-field s2">
-            <input id="number" placeholder="10" type="text" name="number" class="validate">
-            <label for="number">Question number</label>
-          </div>
-          <div class="input-field s8">
-            <input id="wording" placeholder="‘Practical ability is just as important as intellectual skills.’ How far is this true in your society?" type="text" name="wording" class="validate">
-            <label for="wording">Question wording</label>
-          </div>
+    <div class="divider"></div>
+
+    <div class="row"></div>
+    <form action="/add" method="POST">
+      <div class="row">
+        <div class="input-field s2">
+          <input id="year" placeholder="2017" type="text" name="year" class="validate">
+          <label for="year">Year</label>
         </div>
-        <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn">Add question<i class="material-icons right">add</i></button>
-      </form>
-    </div>
+        <div class="input-field s2">
+          <input id="number" placeholder="10" type="text" name="number" class="validate">
+          <label for="number">Question number</label>
+        </div>
+        <div class="input-field s8">
+          <input id="wording"
+            placeholder="‘Practical ability is just as important as intellectual skills.’ How far is this true in your society?"
+            type="text" name="wording" class="validate">
+          <label for="wording">Question wording</label>
+        </div>
+      </div>
+      <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn">Add question<i
+          class="material-icons right">add</i></button>
+    </form>
+  </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
-  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+</body>
 
 
 </html>

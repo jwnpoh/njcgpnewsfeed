@@ -1,81 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Admin - NJC GP News Feed</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
-     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  </head>
 
-  {{template "header"}}
+<head>
+  <title>Admin - NJC GP News Feed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="icon" href="/assets/favicon.ico" />
+</head>
 
-  <body>
-    <div class="container">
-      <div class="row"></div>
-      <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
-      <div class="row"></div>
-      <form action="/form" method="POST">
+{{template "header"}}
 
-        <div class="row">
-          <div class="input-field col s6">
-            <input id="url" type="url" name="url" class="validate">
-            <label for="url">Article URL</label>
-          </div>
-          <div class="input-field col s6">
-            <input id="date" type="text" name="date" class="datepicker">
-            <label for="date">Date published (click to select date)</label>
-          </div>
+<body>
+  <div class="container">
+    <div class="row"></div>
+    <div class="row"><a href="/admin"><i class="material-icons left">arrow_back</i>Back to admin dashboard</a></div>
+    <div class="row"></div>
+    <form action="/form" method="POST">
+
+      <div class="row">
+        <div class="input-field col s6">
+          <input id="url" type="url" name="url" class="validate">
+          <label for="url">Article URL</label>
         </div>
-
-        <div class="row">
-          <div class="input-field col s12">
-            <input placeholder="Article title" id="title" type="text" name="title" class="validate">
-            <label for="">Article title</label>
-          </div>
+        <div class="input-field col s6">
+          <input id="date" type="text" name="date" class="datepicker">
+          <label for="date">Date published (click to select date)</label>
         </div>
+      </div>
 
-        <div class="row">
-          <div class="input-field col s12">
-            <input id="tags" type="text" name="tags" class="validate">
-            <label for="tags">Tag relevant topics and past-year questions(e.g. 2019-Q6). One tag per topic/question, separate each tag with a semicolon.</label>
-          </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <input placeholder="Article title" id="title" type="text" name="title" class="validate">
+          <label for="">Article title</label>
         </div>
-        <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn">Add article<i class="material-icons right">send</i></button>
-      </form>
-    </div>
+      </div>
 
-    <script>
-      var today = new Date();
-      document.addEventListener('DOMContentLoaded', function() {
-        var elems = document.querySelectorAll('.datepicker');
-        var instances = M.Datepicker.init(elems, {
-          format: 'mmm d, yyyy',
-          setDefaultDate: true,
-          defaultDate: today,
-        });
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="tags" type="text" name="tags" class="validate">
+          <label for="tags">Tag relevant topics and past-year questions(e.g. 2019-Q6). One tag per topic/question,
+            separate each tag with a semicolon.</label>
+        </div>
+      </div>
+      <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn">Add article<i
+          class="material-icons right">send</i></button>
+    </form>
+  </div>
+
+  <script>
+    var today = new Date();
+    document.addEventListener('DOMContentLoaded', function () {
+      var elems = document.querySelectorAll('.datepicker');
+      var instances = M.Datepicker.init(elems, {
+        format: 'mmm d, yyyy',
+        setDefaultDate: true,
+        defaultDate: today,
       });
-    </script>
+    });
+  </script>
 
-    <script>
-      url = document.getElementById("url");
-      title = document.getElementById("title");
+  <script>
+    url = document.getElementById("url");
+    title = document.getElementById("title");
 
-      url.addEventListener('input', function(){
-        console.log(url.value);
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/getTitle', true);
-        xhr.addEventListener('readystatechange', function(){
-          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){
-            var r = xhr.responseText;
-            console.log(r);
-            title.setAttribute("value", r);
-          }
-        });
-        xhr.send(url.value);
+    url.addEventListener('input', function () {
+      console.log(url.value);
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/getTitle', true);
+      xhr.addEventListener('readystatechange', function () {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+          var r = xhr.responseText;
+          console.log(r);
+          title.setAttribute("value", r);
+        }
       });
-    </script>
+      xhr.send(url.value);
+    });
+  </script>
 
-   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
-  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+</body>
+
 </html>

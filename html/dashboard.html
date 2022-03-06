@@ -1,63 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Admin - NJC GP News Feed</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-  </head>
 
-  {{template "header"}}
+<head>
+  <title>Admin - NJC GP News Feed</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="icon" href="/assets/favicon.ico" />
+</head>
 
-  <body>
-    <div class="container">
-      <div class="row"></div>
-      <div class="row">
-        <h4 class="center-align">
-          Welcome to the admin dashboard! What would you like to do today?
+{{template "header"}}
+
+<body>
+  <div class="container">
+    <div class="row"></div>
+    <div class="row">
+      <h4 class="center-align">
+        Welcome to the admin dashboard! What would you like to do today?
         </h5>
+    </div>
+    <div class="row">
+      <div class="divider"></div>
+      <div class="row"></div>
+      <div class="col s12 m6 l3">
+        <h5 class="center-align"><a href="/form">Add article</a></h5>
+        <p class="center-align">
+          Add an article. Submit multiple forms to add multiple articles.
+        </p>
       </div>
-      <div class="row">
-        <div class="divider"></div>
-        <div class="row"></div>
-        <div class="col s12 m6 l3">
-          <h5 class="center-align"><a href="/form">Add article</a></h5>
-          <p class="center-align">
-            Add an article. Submit multiple forms to add multiple articles.
-          </p>
-        </div>
-        <div class="col s12 m6 l3">
-          <h5 class="center-align"><a href="/edit">Edit article</a></h5>
-          <p class="center-align">
-            Edit an article. Submit multiple forms to edit multiple articles.
-          </p>
-        </div>
-        <div class="col s12 m6 l3">
-          <h5 class="center-align"><a href="/delete">Delete article</a></h5>
-          <p class="center-align">
-            Delete an article. Submit multiple forms to delete multiple
-            articles.
-          </p>
-        </div>
-        <div class="col s12 m6 l3">
-          <h5 class="center-align"><a href="/add">Add/Update question</a></h5>
-          <p class="center-align">
-            There might be the odd past year question that is missing from the
-            questions database, or that has an error. Add or update it here.
-          </p>
-        </div>
+      <div class="col s12 m6 l3">
+        <h5 class="center-align"><a href="/edit">Edit article</a></h5>
+        <p class="center-align">
+          Edit an article. Submit multiple forms to edit multiple articles.
+        </p>
+      </div>
+      <div class="col s12 m6 l3">
+        <h5 class="center-align"><a href="/delete">Delete article</a></h5>
+        <p class="center-align">
+          Delete an article. Submit multiple forms to delete multiple
+          articles.
+        </p>
+      </div>
+      <div class="col s12 m6 l3">
+        <h5 class="center-align"><a href="/add">Add/Update question</a></h5>
+        <p class="center-align">
+          There might be the odd past year question that is missing from the
+          questions database, or that has an error. Add or update it here.
+        </p>
       </div>
     </div>
+  </div>
 
-    {{template "stats" .}}
+  {{template "stats" .}}
 
-    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
-  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+</body>
+
 </html>

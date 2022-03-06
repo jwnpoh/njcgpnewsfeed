@@ -1,29 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>NJC GP News Feed</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
-     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  </head>
 
-  {{template "header"}}
+<head>
+  <title>NJC GP News Feed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="icon" href="/assets/favicon.ico" />
+</head>
 
-  <body>
-    <div class="container">
-      <div class="section">
-        <div class="row">
-          <h3>Displaying results for: "{{.Term}}" </h3>
-        </div>
+{{template "header"}}
 
-        {{template "cards" .Articles}}
-
+<body>
+  <div class="container">
+    <div class="section">
+      <div class="row">
+        <h3>Displaying results for: "{{.Term}}" </h3>
       </div>
-    </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
-  </body>
-  <div class="divider"></div>
-  {{template "footer"}}
+      {{template "cards" .Articles}}
+
+    </div>
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+</body>
+<div class="divider"></div>
+{{template "footer"}}
+
 </html>
