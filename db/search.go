@@ -138,7 +138,9 @@ func searchQuestions(term string, a Article) bool {
 		cutYear := regexp.MustCompile(`\d{4}`)
 		year := cutYear.FindString(term)
 		for _, j := range a.Questions {
-			return j.Number == qnNumber && j.Year == year
+			if j.Number == qnNumber && j.Year == year {
+				return true
+			}
 		}
 	default:
 		for _, j := range a.Questions {
