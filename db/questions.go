@@ -71,6 +71,16 @@ func (qc QuestionCounter) Decrement(key string) {
 	}
 }
 
+// GetZeroArticleQns gets the questions that have zero articles tagged.
+func (qc QuestionCounter) GetZeroArticleQns(qnDB QuestionsDB) {
+  for _, v := range qnDB {
+    qn := v.Year + " - Q" + v.Number
+    if _, ok := qc[qn]; !ok {
+      qc[qn] = 0
+    }
+  }
+}
+
 // QuestionObject is an object to enable ranking of questions by number of articles tagged.
 type QuestionObject struct {
 	Key   string

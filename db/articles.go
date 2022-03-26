@@ -211,6 +211,10 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 		*db = append(*db, *a)
 	}
 
+  // check questions with zero articles.
+  qc.GetZeroArticleQns(qnDB)
+
+  // sort articles by latest date
 	sort.Sort(sort.Reverse(db))
 
 	return nil
