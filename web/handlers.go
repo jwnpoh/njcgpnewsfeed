@@ -22,13 +22,65 @@ func (s *Server) router() {
 	http.HandleFunc("/backup", backup)
 	http.HandleFunc("/getTitle", getTitle)
 	http.HandleFunc("/error", errorPage)
+  http.HandleFunc("/poll", updatePoll)
+}
+
+func updatePoll(w http.ResponseWriter, r *http.Request) {
+  var userInput struct {
+    Input string `json:"input"`
+  }
+
+  readJSON(w, r, &userInput)
+  fmt.Println(userInput)
+
+  q, err := db.UpdatePoll(userInput.Input, s.Ctx, s.Articles)
+	if err != nil {
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
+
+  payload := struct {
+    Agree int `json:"Agree"`
+    Disagree int `json:"Disagree"`
+    PollID string `json:"PollID"`
+  }{
+    Agree: q.Yes,
+    Disagree: q.No,
+    PollID: q.PollID,
+  }
+
+  fmt.Println(payload)
+
+  writeJSON(w, http.StatusOK, payload)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	data := *s.Articles
-	data = data[0:12]
+	latest := *s.Articles
+	latest = latest[0:12]
 
-	err := tpl.ExecuteTemplate(w, "index.html", data)
+	qotw, err := db.GetQotw(s.Ctx, s.Articles)
+	if err != nil {
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
+
+	data := struct {
+		Latest db.ArticlesDBByDate
+		Qotw   db.Qotw
+	}{
+		Latest: latest,
+		Qotw:   qotw,
+	}
+
+	err = tpl.ExecuteTemplate(w, "index.html", data)
 	if err != nil {
 		msg := customError{
 			ErrMsg:  fmt.Sprintf("%v", err),

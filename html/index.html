@@ -16,37 +16,37 @@
 
 <body>
   <div class="container">
+
     <div class="section">
       <div>
         <h3>Featured article:</h3>
         <div>
-          {{$qotw := index . 0}}
-          <span>
-            <p style="font-size: medium;"><i>Published on {{$qotw.DisplayDate}}</i></p>
-          </span>
-          <h5>{{$qotw.Title}}</h5>
+          {{$qotw := .Qotw}}
+          <!-- <span> -->
+          <!--   <p style="font-size: medium;"><i>Published on {{$qotw.Article.DisplayDate}}</i></p> -->
+          <!-- </span> -->
+          <h4>{{$qotw.Article.Title}}</h4>
           <span>
             <p style="font-size: medium;">
-              {{range $topic := $qotw.Topics}}
+              {{range $topic := $qotw.Article.Topics}}
               <a href="/search?term={{$topic}}" style="margin-right: 3px;"><em>#{{$topic}}</em></a>
               {{end}}
             </p>
           </span>
           <span>
-            <a href="{{$qotw.URL}}" target="_blank" rel="noopener noreferrer"
+            <a href="{{$qotw.Article.URL}}" target="_blank" rel="noopener noreferrer"
               class="btn-small btn-flat waves-effect waves-light red darken-1 white-text"><i
                 class="material-icons left">article</i>Go to article</a>
           </span>
         </div>
-        <h3>Question of the Week</h3>
-        <h5>This is the question.</h5>
+        <h5>{{$qotw.Qn.Question}}</h5>
         <div id="poll">
           <form>
-            <p>
-              <label for="option1"><input name="options" id="option1" type="radio"><span>Agree</span></label>
+            <p >
+              <label class="grey-text darken-4" for="agree"><input name="options" id="agree" type="radio"><span class="black-text">Yes</span></label>
             </p>
-            <p>
-              <label for="option2"><input name="options" id="option2" type="radio"><span>Disagree</span></label>
+            <p >
+              <label class="grey-text darken-4" for="disagree"><input name="options" id="disagree" type="radio"><span class="black-text">No</span></label>
             </p>
           </form>
         </div>
@@ -54,7 +54,7 @@
     </div>
 
     <div id="hide" hidden>
-      <canvas id="qotw"> </canvas>
+      <canvas id="qotw" style="height: 80px;"> </canvas>
     </div>
 
     <div class="divider"></div>
@@ -64,65 +64,107 @@
         <h3>Latest articles</h3>
       </div>
 
-      {{template "cards" .}}
-      <div class="fixed-action-btn hide-on-med-and-down"><a class="btn-floating btn-large red darken-1" href="#top"><i
-            class="material-icons">expand_less</i></a></div>
+      {{template "cards" .Latest}}
+      <div class="fixed-action-btn hide-on-med-and-down"><a class="btn-floating btn-large red darken-1" href="#top"><i class="material-icons">expand_less</i></a></div>
     </div>
   </div>
 
-  <script
-    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
-    const submit = document.getElementById('poll');
-    submit.addEventListener('click', () => {
-      document.getElementById('hide').removeAttribute('hidden');
-    })
-  </script>
+    let hashedPollID = '{{$qotw.Qn.PollID}}';
+    if (localStorage.getItem('pollID') === hashedPollID ) {
+      console.log('pollID matched.')
+      if (localStorage.getItem('selection') === 'agree') {
+            document.getElementById('agree').checked = true;
+      } else {
+            document.getElementById('disagree').checked = true;
+      }
+      updatePoll('nil');
+    }
 
-  <script>
-    const labels = [
-      'Agree',
-      'Disagree',
-    ];
 
-    const data = {
-      labels: labels,
-      datasets: [{
-        backgroundColor: '#e53935',
-        borderColor: '#e53935',
-        data: [50, 10],
-      }]
-    };
+    const agree = document.getElementById('agree');
+    agree.addEventListener('click', () => {
+      updatePoll('agree');
+    }, {once:true});
+    
+    const disagree = document.getElementById('disagree');
+    disagree.addEventListener('click', () => {
+      updatePoll('disagree');
+    }, {once:true});
 
-    const config = {
-      type: 'bar',
-      data: data,
-      options: {
-        indexAxis: 'y',
-        elements: {
-          bar: {
-            borderWidth: 2,
-          }
-        },
-        plugins: {
-          title: {
-            display: false,
-          },
-          legend: {
-            display: false,
-          },
-        }
-      },
-    };
+    function updatePoll(selection) {
+      document.getElementById('agree').setAttribute('disabled', 'disabled');
+      document.getElementById('disagree').setAttribute('disabled', 'disabled');
+      
+      const myHeaders = new Headers();
+      myHeaders.append('Content-Type', 'application/json');
 
-    const myChart = new Chart(
-      document.getElementById('qotw'),
-      config
-    );
-  </script>
+      const payload = {
+       input: selection,        
+      }  
+      
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: JSON.stringify(payload),
+      }
+      
+      fetch("/poll", requestOptions)
+        .then(response => response.json())
+        .then(responseData => {
+            const labels = [
+              'Yes',
+              'No',
+            ];
 
+            const data = {
+              labels: labels,
+              datasets: [{
+                backgroundColor: '#e53935',
+                borderColor: '#e53935',
+                data: [responseData.Agree, responseData.Disagree],
+                barPercentage: 0.8,
+              }]
+            };
+
+            const config = {
+              type: 'bar',
+              data: data,
+              options: {
+                indexAxis: 'y',
+                elements: {
+                  bar: {
+                    borderWidth: 0,
+                  }
+                },
+                plugins: {
+                  title: {
+                    display: false,
+                  },
+                  legend: {
+                    display: false,
+                  },
+                }
+              },
+            };
+
+            const myChart = new Chart(
+              document.getElementById('qotw'),
+              config
+            );
+
+            console.log('selection is ', selection);
+            document.getElementById('hide').removeAttribute('hidden');
+            localStorage.setItem('pollID', responseData.PollID);
+            if (selection !== 'nil' ) {
+              localStorage.setItem('selection', selection);
+              }
+          })}
+     
+      </script>
 
 </body>
 
