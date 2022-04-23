@@ -52,3 +52,15 @@ func GetTopicsCount(tm TopicsMap) TopicsCount {
 
 	return tc
 }
+
+func GetTopics(tm TopicsMap) ([]string, error) {
+	topics := make([]string, 0, len(tm))
+
+	for k := range tm {
+		topics = append(topics, string(k))
+	}
+
+	sort.Strings(topics)
+
+	return topics, nil
+}

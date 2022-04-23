@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>NJC GP News Feed</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="icon" href="/assets/favicon.ico" />
+</head>
+<a id="top"></a>
+
+{{template "header"}}
+
+<body>
+  {{range $poll := .}}
+  <div class="container">
+    <div class="section">
+      <div class="row">
+        
+      <div>
+        <h4>Poll #{{$poll.Qn.ID}}:</h4>
+        <div>
+          <h4>{{$poll.Article.Title}}</h4>
+          <span>
+            <p style="font-size: medium;">
+              {{range $topic := $poll.Article.Topics}}
+              <a href="/search?term={{$topic}}" style="margin-right: 3px;"><em>#{{$topic}}</em></a>
+              {{end}}
+            </p>
+          </span>
+          <span>
+            <a href="{{$poll.Article.URL}}" target="_blank" rel="noopener noreferrer"
+              class="btn-small btn-flat waves-effect waves-light red darken-1 white-text"><i
+                class="material-icons left">article</i>Go to article</a>
+          </span>
+        </div>
+        <h5>{{$poll.Qn.Question}}</h5>
+      </div>
+
+      <div>
+        <canvas id="{{$poll.Qn.ID}}" style="height: 80px;"> </canvas>
+      </div>
+
+    </div>
+    <div class="divider"></div>
+
+    </div>
+  </div>
+
+  {{end}}
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    let pollData = {};
+
+    {{range $pollData := .}}
+    pollData = {...pollData, {{$pollData.Qn.ID}}: {Yes: {{$pollData.Qn.Yes}}, No: {{$pollData.Qn.No}} }};
+    {{end}}
+
+    console.log(pollData);
+
+    const labels = [
+      'Yes',
+      'No',
+    ];
+
+
+    for (item in pollData) {
+      console.log('item is ' + item);
+      console.log('item ID is ' + item);
+      console.log('yes and no are ' + pollData[item].Yes + pollData[item].No);
+      const data = {
+        labels: labels,
+        datasets: [{
+          backgroundColor: '#e53935',
+          borderColor: '#e53935',
+          data: [pollData[item].Yes, pollData[item].No],
+          barPercentage: 0.5,
+        }]
+      };
+
+      const config = {
+        type: 'bar',
+        data: data,
+        options: {
+          indexAxis: 'y',
+          elements: {
+            bar: {
+              borderWidth: 0,
+            }
+          },
+          plugins: {
+            title: {
+              display: false,
+            },
+            legend: {
+              display: false,
+            },
+          }
+        },
+      };
+
+      const myChart = new Chart(
+        document.getElementById(item),
+        config
+      );
+    };
+  </script>
+
+</body>
+
+<div class="divider"></div>
+
+{{template "footer"}}

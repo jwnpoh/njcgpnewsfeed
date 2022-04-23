@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>NJC GP News Feed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <a id="top"></a>
+
+  {{template "header"}}
+
+  <body>
+    <div class="container">
+      <div class="section">
+        <div class="row">
+          <h3>Index of all topics</h3>
+        </div>
+
+        {{range $topic := .}}
+        <div class="row">
+          <a href="/search?term={{$topic}}">{{$topic}}</a>
+        </div>
+        {{end}}
+
+        <div class="fixed-action-btn hide-on-med-and-down"><a class="btn-floating btn-large red darken-1" href="#top"><i class="material-icons">expand_less</i></a></div>
+      </div>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  </body>
+
+  <div class="divider"></div>
+
+  {{template "footer"}}
+</html>

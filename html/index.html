@@ -5,8 +5,7 @@
   <title>NJC GP News Feed</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link rel="icon" href="/assets/favicon.ico" />
 </head>
@@ -19,12 +18,10 @@
 
     <div class="section">
       <div>
-        <h3>Featured article:</h3>
-        <div>
           {{$qotw := .Qotw}}
-          <!-- <span> -->
-          <!--   <p style="font-size: medium;"><i>Published on {{$qotw.Article.DisplayDate}}</i></p> -->
-          <!-- </span> -->
+        <h3>Poll #{{$qotw.Qn.ID}}</h3>
+        <h4>Featured article:</h4>
+        <div>
           <h4>{{$qotw.Article.Title}}</h4>
           <span>
             <p style="font-size: medium;">
@@ -42,11 +39,13 @@
         <h5>{{$qotw.Qn.Question}}</h5>
         <div id="poll">
           <form>
-            <p >
-              <label class="grey-text darken-4" for="agree"><input name="options" id="agree" type="radio"><span class="black-text">Yes</span></label>
+            <p>
+              <label class="grey-text darken-4" for="agree"><input name="options" id="agree" type="radio"><span
+                  class="black-text">Yes</span></label>
             </p>
-            <p >
-              <label class="grey-text darken-4" for="disagree"><input name="options" id="disagree" type="radio"><span class="black-text">No</span></label>
+            <p>
+              <label class="grey-text darken-4" for="disagree"><input name="options" id="disagree" type="radio"><span
+                  class="black-text">No</span></label>
             </p>
           </form>
         </div>
@@ -57,6 +56,12 @@
       <canvas id="qotw" style="height: 80px;"> </canvas>
     </div>
 
+    <br>
+
+    <div><a href="/polls">View past polls</a></div>
+
+    <br>
+
     <div class="divider"></div>
 
     <div class="section">
@@ -65,21 +70,23 @@
       </div>
 
       {{template "cards" .Latest}}
-      <div class="fixed-action-btn hide-on-med-and-down"><a class="btn-floating btn-large red darken-1" href="#top"><i class="material-icons">expand_less</i></a></div>
+      <div class="fixed-action-btn hide-on-med-and-down"><a class="btn-floating btn-large red darken-1" href="#top"><i
+            class="material-icons">expand_less</i></a></div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
     let hashedPollID = '{{$qotw.Qn.PollID}}';
-    if (localStorage.getItem('pollID') === hashedPollID ) {
+    if (localStorage.getItem('pollID') === hashedPollID) {
       console.log('pollID matched.')
       if (localStorage.getItem('selection') === 'agree') {
-            document.getElementById('agree').checked = true;
+        document.getElementById('agree').checked = true;
       } else {
-            document.getElementById('disagree').checked = true;
+        document.getElementById('disagree').checked = true;
       }
       updatePoll('nil');
     }
@@ -88,83 +95,84 @@
     const agree = document.getElementById('agree');
     agree.addEventListener('click', () => {
       updatePoll('agree');
-    }, {once:true});
-    
+    }, {once: true});
+
     const disagree = document.getElementById('disagree');
     disagree.addEventListener('click', () => {
       updatePoll('disagree');
-    }, {once:true});
+    }, {once: true});
 
     function updatePoll(selection) {
       document.getElementById('agree').setAttribute('disabled', 'disabled');
       document.getElementById('disagree').setAttribute('disabled', 'disabled');
-      
+
       const myHeaders = new Headers();
       myHeaders.append('Content-Type', 'application/json');
 
       const payload = {
-       input: selection,        
-      }  
-      
+        input: selection,
+      }
+
       const requestOptions = {
         method: 'POST',
         headers: myHeaders,
         body: JSON.stringify(payload),
       }
-      
+
       fetch("/poll", requestOptions)
         .then(response => response.json())
         .then(responseData => {
-            const labels = [
-              'Yes',
-              'No',
-            ];
+          const labels = [
+            'Yes',
+            'No',
+          ];
 
-            const data = {
-              labels: labels,
-              datasets: [{
-                backgroundColor: '#e53935',
-                borderColor: '#e53935',
-                data: [responseData.Agree, responseData.Disagree],
-                barPercentage: 0.8,
-              }]
-            };
+          const data = {
+            labels: labels,
+            datasets: [{
+              backgroundColor: '#e53935',
+              borderColor: '#e53935',
+              data: [responseData.Agree, responseData.Disagree],
+              barPercentage: 0.8,
+            }]
+          };
 
-            const config = {
-              type: 'bar',
-              data: data,
-              options: {
-                indexAxis: 'y',
-                elements: {
-                  bar: {
-                    borderWidth: 0,
-                  }
-                },
-                plugins: {
-                  title: {
-                    display: false,
-                  },
-                  legend: {
-                    display: false,
-                  },
+          const config = {
+            type: 'bar',
+            data: data,
+            options: {
+              indexAxis: 'y',
+              elements: {
+                bar: {
+                  borderWidth: 0,
                 }
               },
-            };
-
-            const myChart = new Chart(
-              document.getElementById('qotw'),
-              config
-            );
-
-            console.log('selection is ', selection);
-            document.getElementById('hide').removeAttribute('hidden');
-            localStorage.setItem('pollID', responseData.PollID);
-            if (selection !== 'nil' ) {
-              localStorage.setItem('selection', selection);
+              plugins: {
+                title: {
+                  display: false,
+                },
+                legend: {
+                  display: false,
+                },
               }
-          })}
-     
-      </script>
+            },
+          };
+
+          const myChart = new Chart(
+            document.getElementById('qotw'),
+            config
+          );
+
+          console.log('selection is ', selection);
+          document.getElementById('hide').removeAttribute('hidden');
+          localStorage.setItem('pollID', responseData.PollID);
+          if (selection !== 'nil') {
+            localStorage.setItem('selection', selection);
+          }
+        })
+    }
+
+  </script>
 
 </body>
 

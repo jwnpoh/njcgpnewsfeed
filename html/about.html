@@ -1,32 +1,59 @@
-<div class="container">
-  <div class="section">
-        <div class="row">
-          <div class="col s12">
-            <h2>
-              <a href="/admin"
-                ><img
-                  src="https://nationaljc-moe-edu-sg-admin.cwp.sg/wp-content/uploads/2021/03/njcat.png"
-                  height="68px"
-                  style="vertical-align: bottom; margin-right: 30px" /></a
-              >Welcome!
-            </h2>
-          </div>
-          <div class="col s12">
-            <p class="flow-text">
-              Too many articles and sources but not enough time to read them
-              all?
-            </p>
-            <p class="flow-text">
-              Your teachers have curated articles which are relevant to our
-              course for your daily reading. We have also appended relevant past
-              year 'A' Level essay questions to each article so that you can
-              practise making connections between the news you read and the
-              issues discussed.
-            </p>
-            <p class="flow-text">
-              We hope that you find this resource helpful!
-            </p>
-          </div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>NJC GP News Feed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+{{template "header"}}
+
+<body>
+  <div class="container">
+    <div class="section">
+      <div class="row">
+
+        <div class="col s12">
+          <h2>
+            About this app <a href="/admin"><img
+                src="https://nationaljc-moe-edu-sg-admin.cwp.sg/wp-content/uploads/2021/03/njcat.png" height="68px"
+                style="vertical-align: bottom; margin-left: 30px" /></a>
+          </h2>
         </div>
+
+        <div class="col s12">
+          <p class="flow-text" style="text-align: justify;">
+            A central requirement of the General Paper syllabus is that students need to stay up to date with the
+            current affairs of the day. However, there are many news outlets publishing numerous articles on a wide range of
+            topics on a daily basis. This can leave many students at a loss as to where to start when they resolve to
+            cultivate a reading habit.
+          </p>
+          <p class="flow-text" style="text-align: justify;">
+            The NJC GP News Feed is the NJC English Department's response to this challenge, by providing our students with a resource to guide them along their reading journey.
+          </p>
+        </div>
+
+        <div>
+          <h3>Features:</h3>
+              <div class="row"> Daily curation of articles pertinent to the course</div>
+              <div class="row"> Tagging of articles by topic</div>
+              <div class="row"> Tagging of articles by past-year essay questions</div>
+              <div class="row"> Search articles by keyword, topic, or past-year question</div>
+              <div class="row"> Simple boolean search (AND, OR, NOT)</div>
+        </div>
+
+      </div>
+    </div>
   </div>
-</div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0-alpha/dist/js/materialize.min.js"></script>
+</body>
+<div class="divider"></div>
+{{template "footer"}}
+
+</html>

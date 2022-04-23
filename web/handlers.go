@@ -12,7 +12,10 @@ func (s *Server) router() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/latest", latest)
 	http.HandleFunc("/all", all)
+	http.HandleFunc("/topics", topics)
 	http.HandleFunc("/search", search)
+	http.HandleFunc("/about", about)
+
 	http.HandleFunc("/admin", admin)
 	http.HandleFunc("/form", form)
 	http.HandleFunc("/delete", delete)
@@ -21,8 +24,32 @@ func (s *Server) router() {
 	http.HandleFunc("/add", addQuestion)
 	http.HandleFunc("/backup", backup)
 	http.HandleFunc("/getTitle", getTitle)
+
 	http.HandleFunc("/error", errorPage)
   http.HandleFunc("/poll", updatePoll)
+  http.HandleFunc("/polls", getPolls)
+}
+
+func getPolls(w http.ResponseWriter, r *http.Request) {
+	polls, err := db.GetPolls(s.Ctx, s.Articles)
+	if err != nil {
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
+
+	err = tpl.ExecuteTemplate(w, "polls.html", polls)
+	if err != nil {
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
 }
 
 func updatePoll(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +58,6 @@ func updatePoll(w http.ResponseWriter, r *http.Request) {
   }
 
   readJSON(w, r, &userInput)
-  fmt.Println(userInput)
 
   q, err := db.UpdatePoll(userInput.Input, s.Ctx, s.Articles)
 	if err != nil {
@@ -52,8 +78,6 @@ func updatePoll(w http.ResponseWriter, r *http.Request) {
     Disagree: q.No,
     PollID: q.PollID,
   }
-
-  fmt.Println(payload)
 
   writeJSON(w, http.StatusOK, payload)
 }
@@ -81,6 +105,22 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = tpl.ExecuteTemplate(w, "index.html", data)
+	if err != nil {
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
+}
+
+func topics(w http.ResponseWriter, r *http.Request) {
+	topics, err := db.GetTopics(s.Topics)
+
+	fmt.Println(topics)
+
+	err = tpl.ExecuteTemplate(w, "topics.html", topics)
 	if err != nil {
 		msg := customError{
 			ErrMsg:  fmt.Sprintf("%v", err),
@@ -158,6 +198,18 @@ func errorPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := tpl.ExecuteTemplate(w, "error.html", msg)
+	if err != nil {
+		msg := customError{
+			ErrMsg:  fmt.Sprintf("%v", err),
+			HelpMsg: "",
+		}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
+}
+
+func about(w http.ResponseWriter, r *http.Request) {
+	err := tpl.ExecuteTemplate(w, "about.html", nil)
 	if err != nil {
 		msg := customError{
 			ErrMsg:  fmt.Sprintf("%v", err),
