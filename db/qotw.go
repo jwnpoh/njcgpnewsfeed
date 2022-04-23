@@ -103,9 +103,9 @@ func GetPolls(ctx context.Context, articles *ArticlesDBByDate) ([]Qotw, error) {
 		xq = append(xq, Qotw{Article: article, Qn: q})
 	}
 
-	// reverse order
+	// reverse order and also exclude current latest poll
 	res := make([]Qotw, 0, len(xq))
-	for i := len(xq) - 1; i >= 0; i-- {
+	for i := len(xq) - 2; i >= 0; i-- {
 		res = append(res, xq[i])
 	}
 
