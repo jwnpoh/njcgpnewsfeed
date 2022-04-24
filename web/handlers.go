@@ -118,8 +118,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 func topics(w http.ResponseWriter, r *http.Request) {
 	topics, err := db.GetTopics(s.Topics)
 
-	fmt.Println(topics)
-
 	err = tpl.ExecuteTemplate(w, "topics.html", topics)
 	if err != nil {
 		msg := customError{
