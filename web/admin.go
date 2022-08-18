@@ -147,6 +147,12 @@ func addArticle(w http.ResponseWriter, r *http.Request) {
 	date := r.Form.Get("date")
 	tags := splitTags(r.Form.Get("tags"))
 
+	if title == "" || url == "" || date == "" || r.Form.Get("tags") == "" {
+		msg := customError{ErrMsg: "Empty field(s) on form.", HelpMsg: "Make sure the form is fully filled."}
+		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
+		return
+	}
+
 	data := formData{
 		title,
 		url,
@@ -241,8 +247,8 @@ func editArticle(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(index)
 	if err != nil {
 		msg := customError{
-			ErrMsg:  "Unable to parse index of selected Article to edit.",
-			HelpMsg: "Try refreshing the page and try again.",
+			ErrMsg:  "No article seems to have been selected.",
+			HelpMsg: "Go back and select an article to be edited.",
 		}
 		http.Redirect(w, r, "/error?"+fmt.Sprintf("%v=%v&%v=%v", "ErrMsg", msg.ErrMsg, "HelpMsg", msg.HelpMsg), http.StatusSeeOther)
 		return
