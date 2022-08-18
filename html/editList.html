@@ -29,13 +29,7 @@
     <form action="/edit" method="POST">
       <div class="row"></div>
       {{range $index, $article := .}}
-      <p>
-        <label for="index-{{$index}}">
-          <input type="radio" class="with-gap" id="index-{{$index}}" name="index" value="{{$index}}" />
-          <span> {{$article.DisplayDate}} | <a href="{{$article.URL}}" target="_blank"
-              rel="noopener noreferrer">{{$article.Title}}</a>| {{range $topic := $article.Topics}}{{$topic}}, {{end}}
-            |{{range $question := $article.Questions}}{{$question.Year}} Q{{$question.Number}}, {{end}}</span></label>
-      </p>
+      <p> <label for="index-{{$index}}"> <input type="radio" class="with-gap" id="index-{{$index}}" name="index" value="{{$index}}" /> <span> {{$article.DisplayDate}} | <a href="{{$article.URL}}" target="_blank" rel="noopener noreferrer">{{$article.Title}}</a>| {{range $topic := $article.Topics}}{{$topic}}, {{end}} |{{range $question := $article.Questions}}{{$question.Year}} Q{{$question.Number}}, {{end}}</span></label> </p>
       {{end}}
       <div class="fixed-action-btn">
         <button class="btn waves-effect waves-light red darken-1" type="submit" id="btn"> Edit article<i class="material-icons right">edit</i> </button>
