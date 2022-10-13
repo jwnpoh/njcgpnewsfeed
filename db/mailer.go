@@ -10,10 +10,10 @@ import (
 
 func SendMail(from, to, replyTo, subject, msg string) error {
 	server := mail.NewSMTPClient()
-	server.Host = os.Getenv("SMTP-HOST")
-	server.Port, _ = strconv.Atoi(os.Getenv("SMTP-PORT"))
-	server.Username = os.Getenv("SMTP-USER")
-	server.Password = os.Getenv("SMTP-PASS")
+	server.Host = os.Getenv("SMTP_HOST")
+	server.Port, _ = strconv.Atoi(os.Getenv("SMTP_PORT"))
+	server.Username = os.Getenv("SMTP_USER")
+	server.Password = os.Getenv("SMTP_PASS")
 	server.Encryption = mail.EncryptionTLS
 	server.KeepAlive = false
 	server.ConnectTimeout = 10 * time.Second
