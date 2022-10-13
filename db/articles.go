@@ -176,6 +176,10 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 	}
 
 	for _, row := range data.Values {
+		if len(row) < 1 {
+			continue
+		}
+
 		a, err := NewArticle()
 		if err != nil {
 			return fmt.Errorf("%w", err)
@@ -211,10 +215,10 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 		*db = append(*db, *a)
 	}
 
-  // check questions with zero articles.
-  qc.GetZeroArticleQns(qnDB)
+	// check questions with zero articles.
+	qc.GetZeroArticleQns(qnDB)
 
-  // sort articles by latest date
+	// sort articles by latest date
 	sort.Sort(sort.Reverse(db))
 
 	return nil
