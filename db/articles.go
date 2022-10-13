@@ -175,8 +175,15 @@ func (db *ArticlesDBByDate) InitArticlesDB(ctx context.Context, qnDB QuestionsDB
 		return fmt.Errorf("no data found")
 	}
 
-	for _, row := range data.Values {
+	for i, row := range data.Values {
+		i++
 		if len(row) < 1 {
+			err := SendMail("admin@njcgpnewsfeed", "joel_poh_weinan@moe.edu.sg", "jwn.poh@gmail.com", "NJC GP Newsfeed DB Error", fmt.Sprintf("Check Articles DB at row %d", i))
+			if err != nil {
+				fmt.Printf("Did not send mail - %v", err)
+			} else {
+				fmt.Println("Sent mail.")
+			}
 			continue
 		}
 

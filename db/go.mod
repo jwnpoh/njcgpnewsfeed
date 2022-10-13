@@ -3,6 +3,7 @@ module github.com/jwnpoh/njcgpnewsfeed/db
 go 1.16
 
 require (
-	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
+	github.com/go-test/deep v1.0.8 // indirect
+	github.com/xhit/go-simple-mail/v2 v2.12.0
 	google.golang.org/api v0.48.0
 )
